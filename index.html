@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ClinConnect — Patient Follow-up Portal</title>
+  <meta name="author" content="Author: Dr. Navavidha Kale; Software Design: Pulkit Joshi" />
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <button id="menu-toggle" class="menu-btn" aria-label="Toggle menu">☰</button>
+      <div class="brand-wrap">
+        <img src="assets/images/pgimer_logo.jpeg" alt="PGIMER logo" class="logo"/>
+        <div class="brand-text">
+          <h1 class="brand">ClinConnect</h1>
+          <p class="tagline">A patient follow-up portal of the Department of Oral and Maxillofacial Surgery, PGIMER, Chandigarh</p>
+        </div>
+      </div>
+      <nav class="nav" id="top-nav">
+        <a href="#" id="nav-home" class="active"><span class="ico">🏠</span><span class="hide-sm"> Home</span></a>
+        <a href="#" id="nav-about"><span class="ico">ℹ️</span><span class="hide-sm"> About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- <section class="meta">
+      <span class="chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
+        Author: <strong>Dr. Navavidha Kale</strong>
+      </span>
+      <span class="chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>
+        Software Design: <strong>Pulkit Joshi</strong>
+      </span>
+    </section> -->
+
+    <section class="card auth-card" id="auth-section">
+      <div class="tabs">
+        <button class="tab active" id="tab-login" aria-controls="login-panel">🔐 Login</button>
+        <button class="tab" id="tab-signup" aria-controls="signup-panel">📝 Sign up</button>
+      </div>
+
+      <!-- Login Panel -->
+      <div id="login-panel" class="panel active" role="tabpanel" aria-labelledby="tab-login">
+        <form id="login-form">
+          <label>
+            <span class="lbl">Username / Email / Phone</span>
+            <div class="input-icon">
+              <span class="ico">👤</span>
+              <input type="text" id="login-identifier" required placeholder="e.g. johndoe or john@example.com or 9876543210"/>
+            </div>
+          </label>
+          <label>
+            <span class="lbl">Password</span>
+            <div class="input-icon">
+              <span class="ico">🔒</span>
+              <input type="password" id="login-password" required/>
+            </div>
+          </label>
+          <button type="submit" class="btn primary" id="login-submit">➡️ Login</button>
+        </form>
+      </div>
+
+      <!-- Signup Panel -->
+      <div id="signup-panel" class="panel" role="tabpanel" aria-labelledby="tab-signup">
+        <form id="signup-form">
+          <label>
+            <span class="lbl">Category <span class="req">*</span></span>
+            <div class="input-icon">
+              <span class="ico">🏷️</span>
+              <select id="su-category" required>
+                <option value="">Select</option>
+                <option value="doctor">Doctor</option>
+                <option value="patient">Patient</option>
+              </select>
+            </div>
+          </label>
+          <div class="grid-2">
+            <label>
+              <span class="lbl">Full Name <span class="req">*</span></span>
+              <div class="input-icon">
+                <span class="ico">🧑‍⚕️</span>
+                <input type="text" id="su-fullname" required placeholder="Full name"/>
+              </div>
+            </label>
+            <label>
+              <span class="lbl">Username <span class="req">*</span></span>
+              <div class="input-icon">
+                <span class="ico">🆔</span>
+                <input type="text" id="su-username" required placeholder="Choose a unique username"/>
+              </div>
+            </label>
+          </div>
+          <div class="grid-2">
+            <label>
+              <span class="lbl">Phone Number <span class="req">*</span></span>
+              <div class="input-icon">
+                <span class="ico">📞</span>
+                <input type="tel" id="su-phone" required placeholder="10–15 digits"/>
+              </div>
+            </label>
+            <label>
+              <span class="lbl">Email <span class="req">*</span></span>
+              <div class="input-icon">
+                <span class="ico">✉️</span>
+                <input type="email" id="su-email" required placeholder="name@example.com"/>
+              </div>
+            </label>
+          </div>
+          <div class="grid-2">
+            <label>
+              <span class="lbl">Password <span class="req">*</span></span>
+              <div class="input-icon">
+                <span class="ico">🔑</span>
+                <input type="password" id="su-pass" required/>
+              </div>
+            </label>
+            <label>
+              <span class="lbl">Re-enter Password <span class="req">*</span></span>
+              <div class="input-icon">
+                <span class="ico">✅</span>
+                <input type="password" id="su-pass2" required/>
+              </div>
+            </label>
+          </div>
+
+          <button type="submit" class="btn primary" id="signup-submit">➕ Create account</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Patient Dashboard -->
+    <section id="patient-page" class="card hidden">
+      <h3>Patient Profile</h3>
+      <div class="grid-2">
+        <div>
+          <h4>Details</h4>
+          <div id="pt-details" class="details"></div>
+        </div>
+        <div>
+          <h4>Medical History / Treatment</h4>
+          <textarea id="pt-history" rows="6" placeholder="Describe your medical history or recent treatment..."></textarea>
+          <div class="row">
+            <button id="save-history" class="btn">💾 Save History</button>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+
+      <h4>Send Feedback</h4>
+      <div class="grid-2">
+        <div>
+          <label class="lbl">Text feedback</label>
+          <textarea id="pt-feedback-text" rows="4" placeholder="Type your feedback..."></textarea>
+        </div>
+        <div>
+          <label class="lbl">Upload photo</label>
+          <input type="file" id="pt-feedback-file" accept="image/*"/>
+        </div>
+      </div>
+      <div class="row">
+        <button id="send-feedback" class="btn primary">📤 Submit Feedback</button>
+      </div>
+
+      <h4>Timeline</h4>
+      <div id="pt-timeline" class="timeline"></div>
+      <div class="row"><button id="logout-pt" class="btn danger">🚪 Logout</button></div>
+    </section>
+
+    <!-- Doctor Dashboard -->
+    <section id="doctor-page" class="card hidden">
+      <h3>Doctor Panel</h3>
+      <div class="grid-2">
+        <div>
+          <h4>Patients</h4>
+          <ul id="doc-patient-list" class="list"></ul>
+        </div>
+        <div>
+          <h4 id="doc-current-title">Patient Data</h4>
+          <div id="doc-patient-view" class="doc-view"></div>
+        </div>
+      </div>
+      <div class="row"><button id="logout-doc" class="btn danger">🚪 Logout</button></div>
+    </section>
+
+    <section id="about" class="card hidden">
+      <h3>About ClinConnect</h3>
+      <p>Hosted on GitHub Pages, data stored in Supabase (Auth + tables + storage). Timeline and lists update in real-time via API reads—no redeploy needed.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>© <span id="year"></span> ClinConnect · Navavidha Kale and Pulkit Joshi</small>
+    </div>
+  </footer>
+
+  <!-- Config with your Supabase keys (edit js/config.js) -->
+  <script src="js/config.js"></script>
+  <!-- App -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

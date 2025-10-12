@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="780" viewBox="0 0 1200 780" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1200" y2="780" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F5F8FC"/>
+      <stop offset="1" stop-color="#DDE6FF"/>
+    </linearGradient>
+    <linearGradient id="cardLight" x1="0" y1="0" x2="360" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#EEF2FF" stop-opacity="0.88"/>
+    </linearGradient>
+    <linearGradient id="cardAccent" x1="0" y1="0" x2="380" y2="260" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EBF9F6" stop-opacity="0.94"/>
+      <stop offset="1" stop-color="#D6F1EB" stop-opacity="0.84"/>
+    </linearGradient>
+    <filter id="shadow" x="-40" y="-40" width="480" height="320" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#14233E" flood-opacity="0.14"/>
+    </filter>
+    <style>
+      .title{font-family:'Inter',ui-sans-serif;font-weight:600;font-size:26px;fill:#172136}
+      .subtitle{font-family:'Inter',ui-sans-serif;font-weight:400;font-size:16px;fill:#46526B}
+      .label{font-family:'Inter',ui-sans-serif;font-weight:600;font-size:18px;fill:#1F2F4D;text-anchor:middle}
+      .metric{font-family:'Inter',ui-sans-serif;font-weight:500;font-size:15px;fill:#294165;text-anchor:middle}
+    </style>
+  </defs>
+  <rect width="1200" height="780" rx="36" fill="url(#bgGradient)"/>
+
+  <text x="80" y="110" class="title">ClinConnect Follow-up Flow</text>
+  <text x="80" y="140" class="subtitle">A secure loop between specialists, patients, and the data backbone.</text>
+
+  <!-- Doctor Card -->
+  <g transform="translate(80 220)" filter="url(#shadow)">
+    <rect width="360" height="240" rx="28" fill="url(#cardLight)"/>
+    <circle cx="180" cy="138" r="58" fill="#E6EDFF"/>
+    <path d="M180 106c12.15 0 22 9.85 22 22 0 15.6-22 34-22 34s-22-18.4-22-34c0-12.15 9.85-22 22-22Zm0 12.5c-5.25 0-9.5 4.25-9.5 9.5s4.25 9.5 9.5 9.5 9.5-4.25 9.5-9.5-4.25-9.5-9.5-9.5Z" fill="#2F6FED"/>
+    <text x="180" y="212" class="label">Doctors share guidance</text>
+  </g>
+
+  <!-- Patient Card -->
+  <g transform="translate(760 220)" filter="url(#shadow)">
+    <rect width="360" height="240" rx="28" fill="url(#cardLight)"/>
+    <circle cx="180" cy="138" r="58" fill="#E6EDFF"/>
+    <path d="M180 176c-1.8 0-3.5-.74-4.75-2.06l-32.1-33.2c-9.9-10.24-9.7-26.68.45-36.7 8.96-8.7 23.1-8.9 32.26-.46l4.14 3.78 4.14-3.78c9.16-8.44 23.3-8.24 32.26.46 10.15 10.02 10.35 26.46.45 36.7l-32.1 33.2c-1.25 1.32-2.95 2.06-4.75 2.06Z" fill="#2F6FED"/>
+    <text x="180" y="212" class="label">Patients submit updates</text>
+  </g>
+
+  <!-- Platform Core -->
+  <g transform="translate(420 320)" filter="url(#shadow)">
+    <rect width="380" height="260" rx="30" fill="url(#cardAccent)"/>
+    <circle cx="190" cy="160" r="66" fill="#DDF3EE"/>
+    <path d="M160 142h60c6.6 0 12 5.4 12 12v13.5c0 6.6-5.4 12-12 12h-60c-6.6 0-12-5.4-12-12V154c0-6.6 5.4-12 12-12Zm6 30h24v-18h-24v18Zm30 0h24v-18h-24v18Zm-18 22h48" stroke="#2F6FED" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="190" y="250" class="label">ClinConnect platform core</text>
+  </g>
+
+  <!-- Secure Services -->
+  <g transform="translate(420 610)" filter="url(#shadow)">
+    <rect width="380" height="140" rx="26" fill="url(#cardLight)"/>
+    <circle cx="76" cy="70" r="34" fill="#E6EDFF"/>
+    <path d="M76 54a16 16 0 0 1 16 16v6h-32v-6a16 16 0 0 1 16-16Zm18 22h-36a6 6 0 0 0-6 6v16a6 6 0 0 0 6 6h36a6 6 0 0 0 6-6v-16a6 6 0 0 0-6-6Zm-18 11a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" fill="#2F6FED"/>
+    <text x="230" y="82" class="label">Secure data services</text>
+  </g>
+
+  <!-- Metrics -->
+  <g transform="translate(80 528)" filter="url(#shadow)">
+    <rect width="240" height="120" rx="24" fill="url(#cardLight)"/>
+    <circle cx="120" cy="78" r="32" fill="#E6EDFF"/>
+    <path d="M102 78h36M120 60v36" stroke="#2F6FED" stroke-width="6" stroke-linecap="round"/>
+    <text x="120" y="118" class="metric">Real-time sync</text>
+  </g>
+  <g transform="translate(920 528)" filter="url(#shadow)">
+    <rect width="240" height="120" rx="24" fill="url(#cardLight)"/>
+    <circle cx="120" cy="78" r="32" fill="#E6EDFF"/>
+    <path d="M108 88l24-24M110 62h22v22" stroke="#2F6FED" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="120" y="118" class="metric">AI-ready roadmap</text>
+  </g>
+
+  <!-- Connectors -->
+  <path d="M440 330 C 422 330, 418 248, 470 248 L 730 248 C 782 248, 778 330, 760 330" stroke="#2F6FED" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M440 460 C 410 460, 408 518, 456 518" stroke="#59C6BC" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round" fill="none"/>
+  <path d="M820 460 C 850 460, 852 518, 804 518" stroke="#59C6BC" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round" fill="none"/>
+  <path d="M610 580 L 610 602" stroke="#2F6FED" stroke-width="6" stroke-linecap="round" fill="none"/>
+
+  <!-- Arrowheads -->
+  <polygon points="432,324 452,334 432,344" fill="#2F6FED"/>
+  <polygon points="768,324 748,334 768,344" fill="#2F6FED"/>
+  <polygon points="598,592 622,592 610,608" fill="#2F6FED"/>
+</svg>

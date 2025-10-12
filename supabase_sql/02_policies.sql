@@ -5,13 +5,14 @@
 alter table public.profiles enable row level security;
 alter table public.medical enable row level security;
 alter table public.feedback enable row level security;
+alter table public.doctor_registry enable row level security;
 
 -- PROFILES
 drop policy if exists profiles_select_all on public.profiles;
 drop policy if exists profiles_insert_own on public.profiles;
 drop policy if exists profiles_update_own on public.profiles;
 
--- Anyone may read (used for username/phone availability and doctor lists)
+-- Anyone may read (used for identifier availability and doctor lists)
 create policy profiles_select_all on public.profiles
 for select using (true);
 
@@ -52,6 +53,12 @@ for insert with check (
   (auth.uid() = user_id and author = 'patient')
   or (exists (select 1 from public.profiles p where p.id = auth.uid() and p.category = 'doctor') and author = 'doctor')
 );
+
+-- DOCTOR REGISTRY
+drop policy if exists doctor_registry_select_any on public.doctor_registry;
+
+create policy doctor_registry_select_any on public.doctor_registry
+for select using (true);
 
 -- STORAGE NOTE:
 -- Create a public bucket named 'media' in Supabase Storage (or make it private and use signed URLs in the app).

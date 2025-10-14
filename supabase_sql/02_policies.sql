@@ -62,3 +62,21 @@ for select using (true);
 
 -- STORAGE NOTE:
 -- Create a public bucket named 'media' in Supabase Storage (or make it private and use signed URLs in the app).
+
+-- APPOINTMENTS
+alter table public.appointments enable row level security;
+
+drop policy if exists appointments_select_access on public.appointments;
+drop policy if exists appointments_insert_doctor on public.appointments;
+drop policy if exists appointments_delete_doctor on public.appointments;
+
+create policy appointments_select_access on public.appointments
+for select using (
+  auth.uid() = doctor_id or auth.uid() = patient_id
+);
+
+create policy appointments_insert_doctor on public.appointments
+for insert with check (auth.uid() = doctor_id);
+
+create policy appointments_delete_doctor on public.appointments
+for delete using (auth.uid() = doctor_id);

@@ -47,7 +47,19 @@ create table if not exists public.feedback (
   created_at timestamptz not null default now()
 );
 
+-- APPOINTMENTS (doctor scheduled visits)
+create table if not exists public.appointments (
+  id uuid primary key default gen_random_uuid(),
+  doctor_id uuid not null references public.profiles(id) on delete cascade,
+  patient_id uuid not null references public.profiles(id) on delete cascade,
+  scheduled_at timestamptz not null,
+  notes text,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_profiles_employee_id on public.profiles using btree (employee_id);
 create index if not exists idx_profiles_patient_id on public.profiles using btree (patient_id);
 create index if not exists idx_profiles_phone on public.profiles using btree (phone);
 create index if not exists idx_feedback_user_id_created on public.feedback (user_id, created_at desc);
+create index if not exists idx_appointments_doctor_id on public.appointments (doctor_id, scheduled_at);
+create index if not exists idx_appointments_patient_id on public.appointments (patient_id, scheduled_at);

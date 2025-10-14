@@ -181,6 +181,59 @@ input:focus, select:focus, textarea:focus{border-color:var(--primary);box-shadow
 .hero-dot.active,.hero-dots button.active,.hero-dot:hover,.hero-dots button:hover{background:var(--primary);border-color:var(--primary);opacity:1}
 
 .hidden{display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.placeholder{padding:24px;border:1px dashed var(--line);border-radius:16px;background:var(--surface);text-align:center}
+.phone-input{gap:12px;flex-wrap:wrap}
+.phone-input select{border:1px solid var(--line);border-radius:12px;padding:10px 36px 10px 14px;background:var(--surface);color:var(--text);font:inherit;appearance:none;min-width:150px;flex:0 0 auto}
+.phone-input select:focus{outline:2px solid var(--ring);outline-offset:2px}
+.phone-input input{flex:1}
+.chat-thread{display:flex;flex-direction:column;gap:8px}
+.chat-thread + .chat-thread{margin-top:16px}
+.chat-message{max-width:72%;padding:12px 14px;border-radius:18px;background:color-mix(in srgb,var(--card) 92%, var(--surface) 8%);box-shadow:0 6px 14px rgba(20,32,61,.12);position:relative}
+.chat-message.mine{margin-left:auto;background:var(--primary);color:var(--primary-contrast);box-shadow:0 8px 18px rgba(52,111,230,.32)}
+.chat-message.mine .chat-meta{color:color-mix(in srgb,var(--primary-contrast) 80%, transparent)}
+.chat-message .chat-meta{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.chat-message .chat-body{display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.5;word-break:break-word}
+.chat-message .chat-body img{max-width:100%;border-radius:14px;border:1px solid var(--line)}
+.chat-actions{display:flex;gap:12px;margin-top:6px}
+.chat-actions button{background:transparent;border:none;padding:0;font-size:12px;font-weight:600;color:var(--primary);cursor:pointer}
+.chat-actions button:hover{text-decoration:underline}
+.chat-message.mine .chat-actions button{color:var(--primary-contrast)}
+.chat-reply-form{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.chat-reply-form.hidden{display:none}
+.chat-reply-form textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);resize:vertical;min-height:60px}
+.chat-message.mine .chat-reply-form textarea{background:var(--card);color:var(--text)}
+.chat-reply-buttons{display:flex;gap:10px;justify-content:flex-end}
+.chat-thread-children{display:flex;flex-direction:column;gap:12px;margin-left:40px;border-left:2px solid var(--line);padding-left:16px}
+.chat-composer{display:flex;flex-direction:column;gap:8px;margin:12px 0 0}
+.chat-composer textarea{width:100%;min-height:68px;border-radius:16px;background:color-mix(in srgb,var(--card) 92%, var(--surface) 8%);color:var(--text);padding:12px;border:none;box-shadow:0 6px 18px rgba(20,32,61,.12);resize:vertical}
+.chat-composer textarea:focus{outline:2px solid var(--ring);outline-offset:2px}
+.chat-composer .composer-actions{display:flex;justify-content:flex-end}
+.chat-composer .composer-actions .btn{box-shadow:none}
+.patient-chat-composer{flex-direction:row;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:20px 0 0;padding:12px 16px;border:1px solid var(--line-strong);border-radius:18px;background:var(--card);box-shadow:0 12px 28px rgba(20,32,61,.12)}
+.patient-chat-composer textarea{flex:1 1 220px;min-height:0;height:48px;resize:none;padding:10px 12px;background:transparent;box-shadow:none}
+.patient-chat-composer textarea:focus{outline:none}
+.patient-chat-composer textarea:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring);border-radius:12px;background:color-mix(in srgb,var(--primary-soft) 35%, var(--card) 65%)}
+.patient-chat-composer .composer-actions{align-self:center}
+.patient-chat-composer .composer-actions .btn{padding:10px 18px}
+.chat-attach-btn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--primary) 12%, var(--card) 88%);color:var(--primary);cursor:pointer;transition:all var(--transition-speed) ease;box-shadow:0 8px 20px rgba(20,32,61,.12)}
+.chat-attach-btn.has-file{background:var(--primary);color:var(--primary-contrast);border-color:var(--primary)}
+.chat-attach-btn:hover,.chat-attach-btn:focus{border-color:var(--primary);color:var(--primary-contrast);background:var(--primary)}
+.chat-attach-btn:focus{outline:2px solid var(--ring);outline-offset:2px}
+.kpi-actions{margin-top:12px;display:flex;justify-content:flex-start}
+.kpi-actions .btn{box-shadow:none;padding:6px 14px}
+.schedule-card{margin-top:18px;border:1px solid var(--line-strong);border-radius:16px;padding:18px;background:var(--card);box-shadow:0 12px 28px rgba(20,32,61,.1);display:flex;flex-direction:column;gap:14px}
+.schedule-card .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.schedule-card label{font-weight:600;font-size:13px;color:var(--text-soft)}
+.schedule-card input,.schedule-card textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit}
+.schedule-card textarea{resize:vertical;min-height:80px}
+.schedule-card .row{display:flex;justify-content:flex-end;gap:12px}
+.appointment-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.appointment-item{border:1px solid var(--line-strong);border-radius:14px;padding:14px;background:var(--card);box-shadow:0 10px 24px rgba(20,32,61,.08);display:flex;flex-direction:column;gap:6px}
+.appointment-item strong{font-size:15px;color:var(--text)}
+.appointment-item .meta{font-size:13px;color:var(--muted)}
 
 .list{list-style:none;margin:0;padding:0;max-height:60vh;overflow:auto;border:1px solid var(--line-strong);border-radius:16px;background:var(--card);box-shadow:0 12px 26px rgba(20,32,61,.12)}
 .list li{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
@@ -189,10 +242,55 @@ input:focus, select:focus, textarea:focus{border-color:var(--primary);box-shadow
 
 .details{border:1px solid var(--line-strong);border-radius:16px;padding:16px;background:var(--card);box-shadow:0 10px 24px rgba(20,32,61,.1)}
 .timeline{border:1px solid var(--line-strong);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--card);box-shadow:0 10px 24px rgba(20,32,61,.1)}
+.next-appointment-banner{position:relative;display:flex;gap:16px;align-items:flex-start;padding:20px 22px;border-radius:20px;border-left:5px solid var(--primary);background:linear-gradient(130deg,color-mix(in srgb,var(--primary) 14%,var(--card)) 0%,color-mix(in srgb,var(--accent) 12%,var(--card)) 100%);box-shadow:0 16px 36px rgba(31,52,91,.18);color:var(--text);transition:transform var(--transition-speed) ease,box-shadow var(--transition-speed) ease;animation:next-appt-glow 6s ease-in-out infinite}
+.next-appointment-banner:hover{transform:translateY(-2px);box-shadow:0 20px 44px rgba(31,52,91,.24)}
+.next-appointment-banner .banner-icon{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.32);color:var(--primary);flex-shrink:0}
+.next-appointment-banner .ico{width:24px;height:24px}
+.next-appointment-banner .banner-content{flex:1;display:flex;flex-direction:column;gap:6px}
+.next-appointment-banner .banner-title{margin:0;font-size:16px;font-weight:700;letter-spacing:-0.01em}
+.next-appointment-banner .banner-meta{margin:0;color:var(--text);font-weight:600}
+.next-appointment-banner .banner-note{margin:4px 0 0;color:var(--text-soft);font-size:14px}
+.next-appointment-banner .banner-meta small{display:block;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.next-appointment-banner::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.4),inset 0 1px 0 rgba(255,255,255,.25)}
+@keyframes next-appt-glow{
+  0%,100%{box-shadow:0 16px 36px rgba(31,52,91,.18)}
+  50%{box-shadow:0 22px 48px rgba(47,165,154,.28)}
+}
 .item{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--card);box-shadow:0 12px 28px rgba(20,32,61,.12)}
 .item .meta{font-size:12px;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:.08em}
 .item .thumb{max-width:100%;height:auto;border:1px solid var(--line);border-radius:12px;margin-top:12px}
 .reply{margin-top:12px;padding:12px;border-left:3px solid rgba(52,111,230,.3);background:var(--surface);border-radius:12px}
+.history-readonly{min-height:140px;display:flex;align-items:flex-start;justify-content:flex-start;flex-direction:column;gap:8px}
+.history-readonly.empty{color:var(--muted);font-style:italic}
+
+.doc-welcome{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:28px;flex-wrap:wrap}
+.doc-header-actions{display:flex;gap:12px;flex-wrap:wrap}
+.doc-summary{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:24px;margin-bottom:32px}
+.doc-details{display:grid;gap:10px}
+.doc-kpis{display:flex;gap:16px;flex-wrap:wrap}
+.kpi-card{flex:1 1 180px;background:var(--card);border:1px solid var(--line-strong);border-radius:18px;padding:18px 20px;box-shadow:0 16px 32px rgba(20,32,61,.12)}
+.kpi-label{display:block;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.kpi-value{display:block;font-size:32px;font-weight:700;margin-top:8px;color:var(--text)}
+.doc-main{display:grid;grid-template-columns:minmax(0,.55fr) minmax(0,1fr);gap:28px}
+.doc-patient-list{display:flex;flex-direction:column;gap:16px}
+.doc-patient-list-header h4{margin:0}
+.doc-patient-list-header .small{margin:0}
+.doc-patient-panel{display:flex;flex-direction:column;gap:18px}
+.doc-view{display:flex;flex-direction:column;gap:20px}
+.doc-view.hidden{display:none}
+.doc-profile{display:grid;gap:18px}
+.doc-notes{border:1px solid var(--line-strong);border-radius:16px;padding:18px;background:var(--card);box-shadow:0 12px 28px rgba(20,32,61,.1)}
+.doc-notes textarea{width:100%;border-radius:12px;border:1px solid var(--line);padding:12px;background:var(--surface);color:var(--text);font:inherit;resize:vertical}
+.doc-notes textarea:focus{outline:2px solid var(--ring);outline-offset:2px}
+.doc-reassign{border:1px solid var(--line-strong);border-radius:16px;padding:18px;background:var(--card);box-shadow:0 12px 28px rgba(20,32,61,.1);display:grid;gap:12px}
+.doc-reassign select{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit}
+.doc-reassign-actions{display:flex;gap:12px;flex-wrap:wrap}
+.patient-summary{margin-bottom:32px}
+.patient-main{display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+.patient-welcome .muted{margin-top:8px;max-width:460px}
+.patient-history-card{display:flex;flex-direction:column;gap:12px}
+.patient-feedback-card{display:flex;flex-direction:column;gap:12px}
+.patient-feedback-card input[type="file"]{padding:6px 0;border:none;background:transparent}
 
 .site-footer{border-top:1px solid var(--line);margin-top:20px}
 .site-footer small{color:var(--muted)}
@@ -218,6 +316,10 @@ input:focus, select:focus, textarea:focus{border-color:var(--primary);box-shadow
   .hero-grid{grid-template-columns:1fr;gap:24px}
   .hero-copy h2{font-size:28px}
   .hero-visual{order:-1}
+  .doc-summary{grid-template-columns:1fr}
+  .doc-main{grid-template-columns:1fr}
+  .doc-header-actions{justify-content:flex-start}
+  .patient-main{grid-template-columns:1fr}
   .about-grid{grid-template-columns:1fr}
   .about-visual{order:-1}
 }
@@ -228,6 +330,12 @@ input:focus, select:focus, textarea:focus{border-color:var(--primary);box-shadow
   .hero-actions{flex-direction:column;align-items:flex-start}
   .hero-slider{min-height:260px}
   .card{padding:20px}
+  .doc-kpis{flex-direction:column}
+  .doc-header-actions{width:100%;justify-content:space-between}
+  .doc-header-actions .btn{flex:1 1 auto;justify-content:center}
+  .chat-message{max-width:100%}
+  .chat-thread-children{margin-left:20px;padding-left:12px;border-left-width:1px}
+  .schedule-card .grid-2{grid-template-columns:1fr}
 }
 
 /* Mobile-friendly nav */

@@ -36,6 +36,12 @@
     <symbol id="icon-check" viewBox="0 0 24 24" fill="currentColor">
       <path d="M20.285 6.708a1 1 0 0 1 .007 1.414l-9.193 9.25a1 1 0 0 1-1.428.01l-4.957-4.9a1 1 0 0 1 1.407-1.424l4.246 4.198 8.486-8.532a1 1 0 0 1 1.432-.016Z"/>
     </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 4a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 0 1 0-2h6V5a1 1 0 0 1 1-1Z"/>
+    </symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 7H5v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9Zm-4 3a1 1 0 0 1 0 2h-2a1 1 0 1 1 0-2h2ZM5 7h14V6a1 1 0 0 0-1-1h-1v1a1 1 0 1 1-2 0V5H8v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v1Z"/>
+    </symbol>
     <symbol id="icon-user-plus" viewBox="0 0 24 24" fill="currentColor">
       <path d="M14 4a4 4 0 0 1 1 7.874V12a1 1 0 0 1-2 0v-.126A4 4 0 1 1 14 4Zm-7 4h2V6a1 1 0 0 1 2 0v2h2a1 1 0 0 1 0 2h-2v2a1 1 0 0 1-2 0V8H7a1 1 0 0 1 0-2Zm8 8c2.761 0 5 1.791 5 4v1h-8v-1c0-2.209 2.239-4 5-4Zm-6.5-2c2.485 0 4.5 1.79 4.5 4v1H5v-1c0-2.21 2.015-4 4.5-4Z"/>
     </symbol>
@@ -51,7 +57,7 @@
     <div class="container header-inner">
       <button id="menu-toggle" class="menu-btn" aria-label="Toggle menu">☰</button>
       <div class="brand-wrap">
-        <img src="assets/images/pgimer_logo.jpeg" alt="PGIMER logo" class="logo"/>
+        <img src="assets/images/pgimer_logo.png" alt="PGIMER logo" class="logo"/>
         <div class="brand-text">
           <h1 class="brand">ClinConnect</h1>
           <p class="tagline">A patient follow-up portal of the Department of Oral and Maxillofacial Surgery, PGIMER, Chandigarh</p>
@@ -215,9 +221,12 @@
           <div class="grid-2">
             <label>
               <span class="lbl">Phone Number <span class="req">*</span></span>
-              <div class="input-icon">
+              <div class="input-icon phone-input">
                 <svg class="ico" aria-hidden="true"><use href="#icon-phone"/></svg>
-                <input type="tel" id="su-phone" required placeholder="10–15 digits"/>
+                <select id="su-phone-country" class="phone-country" aria-label="Country code" required>
+                  <option value="91" selected>India (+91)</option>
+                </select>
+                <input type="tel" id="su-phone" required placeholder="Phone number"/>
               </div>
             </label>
             <label>
@@ -252,63 +261,92 @@
 
     <!-- Patient Dashboard -->
     <section id="patient-page" class="card hidden">
-      <h3>Patient Profile</h3>
-      <div class="grid-2">
+      <div class="doc-welcome patient-welcome">
         <div>
-          <h4>Details</h4>
-          <div id="pt-details" class="details"></div>
-          <div class="row">
-            <button id="pt-change-password" class="btn secondary">Change password</button>
-          </div>
+          <span class="eyebrow">Patient workspace</span>
+          <h3 id="pt-welcome-title">Welcome back</h3>
+          <p id="pt-welcome-subtitle" class="muted">Stay connected with your care team.</p>
         </div>
-        <div>
+        <div class="doc-header-actions pt-header-actions">
+          <button id="pt-change-password" class="btn secondary small">Change password</button>
+          <button id="logout-pt" class="btn danger small">Logout</button>
+        </div>
+      </div>
+
+      <div class="doc-summary patient-summary">
+        <div id="pt-details" class="details doc-details"></div>
+        <div class="details patient-history-card">
           <h4>Medical History / Treatment</h4>
-          <textarea id="pt-history" rows="6" placeholder="Describe your medical history or recent treatment..."></textarea>
-          <div class="row">
-            <button id="save-history" class="btn">Save history</button>
-          </div>
+          <div id="pt-history" class="history-readonly"></div>
         </div>
       </div>
 
-      <hr/>
-
-      <h4>Send Feedback</h4>
-      <div class="grid-2">
-        <div>
-          <label class="lbl">Text feedback</label>
-          <textarea id="pt-feedback-text" rows="4" placeholder="Type your feedback..."></textarea>
-        </div>
-        <div>
-          <label class="lbl">Upload photo</label>
-          <input type="file" id="pt-feedback-file" accept="image/*"/>
-        </div>
+      <div class="patient-main">
+        <section class="patient-timeline">
+          <div id="pt-next-appointment" class="next-appointment-banner hidden" role="status" aria-live="polite"></div>
+          <h4>Care Conversation</h4>
+          <div id="pt-timeline" class="timeline"></div>
+          <form id="pt-feedback-form" class="chat-composer patient-chat-composer">
+            <input type="file" id="pt-feedback-file" accept="image/*" class="sr-only" aria-hidden="true"/>
+            <button type="button" id="pt-feedback-attach" class="chat-attach-btn" aria-label="Upload a photo">
+              <svg class="ico" aria-hidden="true"><use href="#icon-plus"/></svg>
+            </button>
+            <textarea id="pt-feedback-text" rows="2" placeholder="Share an update or ask a question..." aria-label="Message your care team"></textarea>
+            <div class="composer-actions">
+              <button type="submit" id="pt-feedback-send" class="btn primary small">Send</button>
+            </div>
+          </form>
+          <h4>Scheduled Appointments</h4>
+          <div id="pt-appointments" class="timeline"></div>
+        </section>
       </div>
-      <div class="row">
-        <button id="send-feedback" class="btn primary">Submit feedback</button>
-      </div>
-
-      <h4>Timeline</h4>
-      <div id="pt-timeline" class="timeline"></div>
-      <div class="row"><button id="logout-pt" class="btn danger">Logout</button></div>
     </section>
 
     <!-- Doctor Dashboard -->
     <section id="doctor-page" class="card hidden">
-      <h3>Doctor Panel</h3>
-      <div class="grid-2">
+      <div class="doc-welcome">
         <div>
-          <h4>Patients</h4>
+          <span class="eyebrow">Doctor workspace</span>
+          <h3 id="doc-welcome-title">Welcome back</h3>
+          <p id="doc-welcome-subtitle" class="muted">Review your patients and stay on top of upcoming care.</p>
+        </div>
+        <div class="doc-header-actions">
+          <button id="doc-change-password" class="btn secondary small">Change password</button>
+          <button id="logout-doc" class="btn danger small">Logout</button>
+        </div>
+      </div>
+
+      <div class="doc-summary">
+        <div id="doc-details-card" class="details doc-details"></div>
+        <div class="doc-kpis">
+          <article class="kpi-card">
+            <span class="kpi-label">Patients under care</span>
+            <span class="kpi-value" id="kpi-patient-count">0</span>
+          </article>
+          <article class="kpi-card">
+            <span class="kpi-label">Appointments scheduled</span>
+            <span class="kpi-value" id="kpi-appointment-count">0</span>
+            <div class="kpi-actions">
+              <button type="button" id="kpi-view-appointments" class="btn ghost small">View details</button>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="doc-main">
+        <aside class="doc-patient-list">
+          <div class="doc-patient-list-header">
+            <h4>Assigned patients</h4>
+            <p class="muted small">Only patients mapped to you are shown.</p>
+          </div>
           <ul id="doc-patient-list" class="list"></ul>
-        </div>
-        <div>
-          <h4 id="doc-current-title">Patient Data</h4>
-          <div id="doc-patient-view" class="doc-view"></div>
-        </div>
+        </aside>
+        <section class="doc-patient-panel">
+          <div id="doc-patient-placeholder" class="placeholder muted">Select a patient from the list to view their profile.</div>
+          <div id="doc-patient-view" class="doc-view hidden"></div>
+        </section>
       </div>
-      <div class="row">
-        <button id="doc-change-password" class="btn secondary">Change password</button>
-      </div>
-      <div class="row"><button id="logout-doc" class="btn danger">Logout</button></div>
+      <div id="doc-appointments-summary" class="card hidden"></div>
     </section>
 
 <section id="about" class="card hidden">

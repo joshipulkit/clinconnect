@@ -42,6 +42,7 @@ for update using (auth.uid() = user_id);
 -- FEEDBACK
 drop policy if exists feedback_select_owner_or_doctor on public.feedback;
 drop policy if exists feedback_insert_patient_or_doctor on public.feedback;
+drop policy if exists feedback_delete_owner_or_author on public.feedback;
 
 create policy feedback_select_owner_or_doctor on public.feedback
 for select using (
@@ -54,6 +55,12 @@ for insert with check (
   or (exists (select 1 from public.profiles p where p.id = auth.uid() and p.category = 'doctor') and author = 'doctor')
 );
 
+create policy feedback_delete_owner_or_author on public.feedback
+for delete using (
+  (auth.uid() = user_id and author = 'patient')
+  or (exists (select 1 from public.profiles p where p.id = auth.uid() and p.category = 'doctor') and author = 'doctor')
+);
+
 -- DOCTOR REGISTRY
 drop policy if exists doctor_registry_select_any on public.doctor_registry;
 
@@ -62,6 +69,25 @@ for select using (true);
 
 -- STORAGE NOTE:
 -- Create a public bucket named 'media' in Supabase Storage (or make it private and use signed URLs in the app).
+
+drop policy if exists storage_media_select on storage.objects;
+drop policy if exists storage_media_insert on storage.objects;
+drop policy if exists storage_media_delete on storage.objects;
+
+create policy storage_media_select on storage.objects
+for select using (
+  bucket_id = 'media' and auth.role() = 'authenticated'
+);
+
+create policy storage_media_insert on storage.objects
+for insert with check (
+  bucket_id = 'media' and auth.role() = 'authenticated'
+);
+
+create policy storage_media_delete on storage.objects
+for delete using (
+  bucket_id = 'media' and auth.uid() = owner
+);
 
 -- APPOINTMENTS
 alter table public.appointments enable row level security;

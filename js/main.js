@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.CLINCONNECT_SUPABASE;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const state = { me: null, session: null, doctorRegistry: [], doctorProfiles: [], appointments: [] };
+const state = { me: null, session: null, doctorRegistry: [], doctorProfiles: [], appointments: [], assignedPatients: [], selectedPatientId: null, hiddenByUser: {} };
 let heroIntervalId = null;
 const THEME_STORAGE_KEY = 'clinconnect-theme';
 const COUNTRY_CODES = [
@@ -453,9 +453,103 @@ function renderAppointmentsSummary(appointments){
       <strong>${esc(patientName)}${patientCode}</strong>
       <div class="meta">${esc(info.day)}, ${esc(info.date)} at ${esc(info.time)} IST</div>
       ${noteHtml}
+      <div class="appointment-actions">
+        <button type="button" class="btn danger small appointment-delete" data-id="${esc(String(appt.id))}" data-patient-id="${esc(String(appt.patient_id || ''))}" title="Remove this appointment">Delete</button>
+      </div>
     </li>`;
   }).join('');
   return `<h5>Scheduled appointments</h5><ul class="appointment-list">${items}</ul>`;
+}
+
+function wireDoctorAppointmentActions(container){
+  if (!container){ return; }
+  const buttons = container.querySelectorAll('.appointment-delete');
+  buttons.forEach((btn)=>{
+    btn.addEventListener('click', async ()=>{
+      const apptId = btn.dataset.id;
+      if (!apptId){ return; }
+      if (!window.confirm('Delete this appointment?')){ return; }
+      const originalLabel = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Deleting…';
+      try{
+        const { error } = await supabase.from('appointments').delete().eq('id', apptId);
+        if (error){ throw error; }
+        state.appointments = (state.appointments || []).filter((appt)=> String(appt.id) !== apptId);
+        refreshDoctorAppointmentsSummary();
+        const appointmentBadge = document.getElementById('kpi-appointment-count');
+        if (appointmentBadge){
+          appointmentBadge.textContent = upcomingAppointments(state.appointments).length.toString();
+        }
+        const patientId = btn.dataset.patientId || '';
+        if (patientId && state.selectedPatientId === patientId){
+          const match = (state.assignedPatients || []).find((entry)=> entry.id === patientId);
+          if (match){
+            await openPatientAsDoctor(match);
+          }
+        }
+      } catch(err){
+        console.error(err);
+        alert(err?.message || 'Could not delete appointment.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      }
+    }, { once: true });
+  });
+}
+
+function refreshDoctorAppointmentsSummary({ forceHidden } = {}){
+  const summaryCard = document.getElementById('doc-appointments-summary');
+  if (!summaryCard){ return; }
+  const shouldHide = forceHidden ?? summaryCard.classList.contains('hidden');
+  summaryCard.innerHTML = renderAppointmentsSummary(state.appointments);
+  wireDoctorAppointmentActions(summaryCard);
+  summaryCard.classList.toggle('hidden', shouldHide);
+}
+
+function renderDoctorInsights(patients, appointments){
+  const upcoming = upcomingAppointments(appointments).sort((a, b)=> new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
+  const now = Date.now();
+  const oneWeekOut = now + 7 * 24 * 60 * 60 * 1000;
+  const nextAppt = upcoming[0] || null;
+  const weeklyCount = upcoming.filter((appt)=> new Date(appt.scheduled_at).getTime() <= oneWeekOut).length;
+  const patientsWithUpcoming = new Set(upcoming.map((appt)=> appt.patient_id));
+  const withoutUpcoming = (patients || []).filter((p)=> !patientsWithUpcoming.has(p.id));
+
+  const nextApptHtml = nextAppt
+    ? (()=> {
+      const info = formatAppointmentDateTime(nextAppt.scheduled_at);
+      const patientName = nextAppt.patient?.fullname ? esc(nextAppt.patient.fullname) : 'Patient';
+      return `<span>${patientName}</span><span class="insight-meta">${esc(info.day)}, ${esc(info.date)} · ${esc(info.time)}</span>`;
+    })()
+    : '<span>No appointments scheduled.</span><span class="insight-meta">Set up the next visit to stay on track.</span>';
+
+  const weeklyLabel = weeklyCount === 0
+    ? 'All clear for the next 7 days.'
+    : `${weeklyCount} appointment${weeklyCount === 1 ? '' : 's'} in the next 7 days.`;
+
+  const withoutLabel = withoutUpcoming.length === 0
+    ? 'Every patient has an upcoming visit scheduled.'
+    : `${withoutUpcoming.length} patient${withoutUpcoming.length === 1 ? '' : 's'} without a scheduled follow-up.`;
+
+  return `
+    <h5>Today’s Focus</h5>
+    <div class="insight-grid">
+      <article class="insight-card">
+        <strong>Next appointment</strong>
+        ${nextApptHtml}
+      </article>
+      <article class="insight-card">
+        <strong>This week</strong>
+        <span>${esc(weeklyLabel)}</span>
+      </article>
+      <article class="insight-card">
+        <strong>Patients to check</strong>
+        <span>${esc(withoutLabel)}</span>
+      </article>
+    </div>
+  `;
 }
 
 function renderPatientNextAppointmentBanner(container, appointment){
@@ -533,9 +627,6 @@ function renderConversationMessage(message, viewer){
   const isMine = viewer === 'patient'
     ? message.author === 'patient'
     : message.author === 'doctor';
-  const canReply = viewer === 'patient'
-    ? message.author === 'doctor'
-    : message.author === 'patient';
   const senderLabel = message.author === 'doctor' ? 'Doctor' : 'Patient';
   const metaLabel = isMine ? 'You' : senderLabel;
   const timestamp = message.created_at ? formatAppointmentDateTime(message.created_at).label : '';
@@ -550,18 +641,17 @@ function renderConversationMessage(message, viewer){
     }
   }
   const bodyHtml = bodyParts.length ? `<div class="chat-body">${bodyParts.join('')}</div>` : '';
-  const actionsHtml = canReply
-    ? `<div class="chat-actions"><button type="button" class="chat-reply-toggle" data-id="${message.id}">Reply</button></div>`
-    : '';
-  const replyFormHtml = canReply
-    ? `<div class="chat-reply-form hidden" data-parent="${message.id}">
-        <textarea rows="3" placeholder="Type your reply..."></textarea>
-        <div class="chat-reply-buttons">
-          <button type="button" class="btn primary small chat-reply-submit" data-id="${message.id}">Send</button>
-          <button type="button" class="btn ghost small chat-reply-cancel">Cancel</button>
-        </div>
-      </div>`
-    : '';
+  const actionsHtml = `<div class="chat-actions">
+    <button type="button" class="chat-reply-toggle" data-id="${message.id}" title="Reply to this message">Reply</button>
+    <button type="button" class="chat-delete-mine" data-id="${message.id}" title="Hide this message from your view">Delete</button>
+  </div>`;
+  const replyFormHtml = `<div class="chat-reply-form hidden" data-parent="${message.id}">
+      <textarea rows="3" placeholder="Type your reply..."></textarea>
+      <div class="chat-reply-buttons">
+        <button type="button" class="btn primary small chat-reply-submit" data-id="${message.id}" title="Send reply">Send</button>
+        <button type="button" class="btn ghost small chat-reply-cancel" title="Cancel reply">Cancel</button>
+      </div>
+    </div>`;
   const childrenHtml = message.replies.length
     ? `<div class="chat-thread-children">${message.replies.map((child)=> renderConversationMessage(child, viewer)).join('')}</div>`
     : '';
@@ -629,6 +719,15 @@ function wireReplyHandlers(container, { viewer, targetUserId, refresh }){
       } finally {
         btn.disabled = false;
       }
+    });
+  });
+  container.querySelectorAll('.chat-delete-mine').forEach((btn)=>{
+    btn.addEventListener('click', async ()=>{
+      const messageId = btn.dataset.id;
+      if (!messageId){ return; }
+      if (!window.confirm('Hide this message from your conversation view?')){ return; }
+      hideMessageForCurrentUser(messageId);
+      await refresh();
     });
   });
 }
@@ -734,20 +833,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   menuBtn.addEventListener('click', ()=> topNav.classList.toggle('open'));
   const goToHome = ({ focus } = {})=>{
     showOnly('#auth-section');
-        if (focus === 'login'){ tabLogin.click(); }
-
+    if (focus === 'login'){ tabLogin.click(); }
     setActiveNav('nav-home');
     closeNav();
   };
-    const goToLogin = ()=> goToHome({ focus: 'login' });
+  const goToLogin = ()=> goToHome({ focus: 'login' });
 
   const goToAbout = ()=>{
     showOnly('#about');
     setActiveNav('nav-about');
     closeNav();
   };
+  const goToResources = ()=>{
+    showOnly('#resources');
+    setActiveNav('nav-resources');
+    closeNav();
+  };
   document.getElementById('nav-home').addEventListener('click', (e)=>{ e.preventDefault(); goToHome({ focus: 'login' }); });
   document.getElementById('nav-about').addEventListener('click', (e)=>{ e.preventDefault(); goToAbout(); });
+  document.getElementById('nav-resources').addEventListener('click', (e)=>{ e.preventDefault(); goToResources(); });
   document.getElementById('hero-login')?.addEventListener('click', (e)=>{ e.preventDefault(); goToLogin(); });
   document.getElementById('hero-learn')?.addEventListener('click', (e)=>{ e.preventDefault(); goToAbout(); });
   document.getElementById('about-login')?.addEventListener('click', (e)=>{ e.preventDefault(); goToLogin(); });
@@ -757,6 +861,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     requestAnimationFrame(()=>{
       const hero = document.getElementById('hero-section');
       if (hero){ hero.scrollIntoView({ behavior:'smooth', block:'start' }); }
+    });
+  });
+  document.getElementById('patient-link-post-op')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    showOnly('#resources');
+    setActiveNav('nav-resources');
+    closeNav();
+    requestAnimationFrame(()=>{
+      document.getElementById('resource-post-op')?.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+  document.getElementById('patient-link-pain')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    showOnly('#resources');
+    setActiveNav('nav-resources');
+    closeNav();
+    requestAnimationFrame(()=>{
+      document.getElementById('resource-pain')?.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+  document.getElementById('patient-link-emergency')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    showOnly('#resources');
+    setActiveNav('nav-resources');
+    closeNav();
+    requestAnimationFrame(()=>{
+      document.getElementById('resource-emergency')?.scrollIntoView({ behavior:'smooth', block:'start' });
     });
   });
 
@@ -834,7 +965,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function showOnly(sel){
-  const sectionIds = ['auth-section','about','patient-page','doctor-page'];
+  const sectionIds = ['auth-section','about','patient-page','doctor-page','resources'];
   for (const id of sectionIds){
     const node = document.getElementById(id);
     if (node){ node.classList.add('hidden'); }
@@ -1061,25 +1192,36 @@ async function showPatientPage(me){
   const feedbackFile = document.getElementById('pt-feedback-file');
   const feedbackAttach = document.getElementById('pt-feedback-attach');
   const feedbackSend = document.getElementById('pt-feedback-send');
+  const feedbackFileLabel = document.getElementById('pt-feedback-file-label');
+  const feedbackClear = document.getElementById('pt-feedback-clear');
+
+  const syncAttachState = ()=>{
+    if (!feedbackFile || !feedbackAttach){ return; }
+    const hasFile = feedbackFile.files && feedbackFile.files.length > 0;
+    const fileName = hasFile ? feedbackFile.files[0].name : '';
+    feedbackAttach.classList.toggle('has-file', !!hasFile);
+    feedbackAttach.setAttribute('aria-label', hasFile ? `Photo ready to send: ${fileName}` : 'Upload a photo');
+    feedbackAttach.setAttribute('title', hasFile ? fileName : '');
+    if (feedbackFileLabel){
+      if (hasFile){
+        feedbackFileLabel.textContent = fileName;
+        feedbackFileLabel.classList.remove('hidden');
+      } else {
+        feedbackFileLabel.textContent = '';
+        feedbackFileLabel.classList.add('hidden');
+      }
+    }
+    if (feedbackClear){
+      feedbackClear.classList.toggle('hidden', !hasFile);
+      feedbackClear.disabled = !hasFile;
+      feedbackClear.setAttribute('aria-hidden', hasFile ? 'false' : 'true');
+    }
+  };
 
   const resetComposer = ()=>{
     if (feedbackText){ feedbackText.value = ''; }
     if (feedbackFile){ feedbackFile.value = ''; }
-    if (feedbackAttach){
-      feedbackAttach.classList.remove('has-file');
-      feedbackAttach.setAttribute('aria-label', 'Upload a photo');
-    }
-  };
-
-  const syncAttachState = ()=>{
-    if (!feedbackAttach || !feedbackFile){ return; }
-    const hasFile = feedbackFile.files && feedbackFile.files.length > 0;
-    feedbackAttach.classList.toggle('has-file', !!hasFile);
-    if (hasFile){
-      feedbackAttach.setAttribute('aria-label', `Photo ready to send: ${feedbackFile.files[0].name}`);
-    } else {
-      feedbackAttach.setAttribute('aria-label', 'Upload a photo');
-    }
+    syncAttachState();
   };
 
   if (feedbackAttach && feedbackFile){
@@ -1088,6 +1230,13 @@ async function showPatientPage(me){
     });
     feedbackFile.addEventListener('change', syncAttachState);
   }
+  feedbackClear?.addEventListener('click', ()=>{
+    if (!feedbackFile){ return; }
+    feedbackFile.value = '';
+    syncAttachState();
+    feedbackAttach?.focus();
+  });
+  syncAttachState();
 
   feedbackForm?.addEventListener('submit', async (event)=>{
     event.preventDefault();
@@ -1105,7 +1254,11 @@ async function showPatientPage(me){
         const ext = (file.name.split('.').pop() || 'png').toLowerCase();
         const folder = patientStorageFolder(me);
         const path = `${folder}/fb_${crypto.randomUUID?.() || Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from('media').upload(path, file, { upsert: false });
+        const { error: upErr } = await supabase.storage.from('media').upload(
+          path,
+          file,
+          { upsert: false, cacheControl: '3600', contentType: file.type || 'application/octet-stream' }
+        );
         if (upErr){ throw upErr; }
         image_path = path;
       }
@@ -1116,7 +1269,8 @@ async function showPatientPage(me){
       await renderPatientTimeline(me);
     } catch(err){
       console.error(err);
-      alert('Could not submit your message. Please try again.');
+      const message = err?.message || err?.error_description || 'Could not submit your message. Please try again.';
+      alert(message);
     } finally {
       if (feedbackSend){ feedbackSend.disabled = false; }
     }
@@ -1141,7 +1295,8 @@ async function renderPatientTimeline(me){
     .order('created_at', { ascending: true });
   if (error){ console.error(error); return; }
   const wrap = document.getElementById('pt-timeline');
-  const threads = buildFeedbackThreads(data || []);
+  const filtered = filterMessagesForDisplay(data || []);
+  const threads = buildFeedbackThreads(filtered);
   if (!threads.length){
     wrap.innerHTML = `<div class="placeholder muted">No updates yet. Start the conversation above.</div>`;
     return;
@@ -1152,6 +1307,7 @@ async function renderPatientTimeline(me){
     targetUserId: me.id,
     refresh: ()=> renderPatientTimeline(me)
   });
+  wrap.scrollTop = wrap.scrollHeight;
 }
 
 // DOCTOR PAGE
@@ -1200,6 +1356,7 @@ async function showDoctorPage(me){
     const docName = (me.fullname || '').trim().toLowerCase();
     return docName && (p.assigned_doctor || '').trim().toLowerCase() === docName;
   });
+  state.assignedPatients = assignedPatients;
 
   const patientCount = assignedPatients.length;
   const upcomingDoctorAppointments = upcomingAppointments(state.appointments);
@@ -1217,18 +1374,23 @@ async function showDoctorPage(me){
       : 'No patients are currently assigned to you.';
   }
 
-  const summaryCard = document.getElementById('doc-appointments-summary');
-  if (summaryCard){
-    summaryCard.innerHTML = renderAppointmentsSummary(state.appointments);
-    summaryCard.classList.add('hidden');
+  const insightsCard = document.getElementById('doc-insights');
+  if (insightsCard){
+    insightsCard.innerHTML = renderDoctorInsights(assignedPatients, state.appointments);
   }
+
+  refreshDoctorAppointmentsSummary({ forceHidden: true });
   const viewAppointmentsBtn = document.getElementById('kpi-view-appointments');
   if (viewAppointmentsBtn){
     viewAppointmentsBtn.textContent = 'View details';
+    viewAppointmentsBtn.title = 'Show upcoming appointments';
     viewAppointmentsBtn.onclick = ()=>{
+      refreshDoctorAppointmentsSummary();
+      const summaryCard = document.getElementById('doc-appointments-summary');
       if (!summaryCard){ return; }
       const hidden = summaryCard.classList.toggle('hidden');
       viewAppointmentsBtn.textContent = hidden ? 'View details' : 'Hide details';
+      viewAppointmentsBtn.title = hidden ? 'Show upcoming appointments' : 'Hide upcoming appointments';
     };
   }
 
@@ -1310,7 +1472,8 @@ async function openPatientAsDoctor(p){
       options.push(`<option value="${esc(currentAssignedId)}">${esc(profile.assigned_doctor)} (${esc(currentAssignedId)})</option>`);
     }
 
-    const threads = buildFeedbackThreads(fb || []);
+    const filteredThreads = filterMessagesForDisplay(fb || []);
+    const threads = buildFeedbackThreads(filteredThreads);
     const conversationHtml = threads.length
       ? renderConversationThreads(threads, { viewer: 'doctor' })
       : `<div class="placeholder muted">No conversation yet. Encourage the patient to share an update.</div>`;
@@ -1412,11 +1575,12 @@ async function openPatientAsDoctor(p){
 
     const timeline = view.querySelector('#doc-timeline');
     if (timeline){
-      wireReplyHandlers(timeline, {
-        viewer: 'doctor',
-        targetUserId: p.id,
-        refresh: ()=> openPatientAsDoctor(p)
-      });
+    wireReplyHandlers(timeline, {
+      viewer: 'doctor',
+      targetUserId: p.id,
+      refresh: ()=> openPatientAsDoctor(p)
+    });
+      timeline.scrollTop = timeline.scrollHeight;
     }
 
     const newNoteBtn = view.querySelector('#doc-new-note-send');
@@ -1491,10 +1655,7 @@ async function openPatientAsDoctor(p){
         if (appointmentBadge){
           appointmentBadge.textContent = upcomingAppointments(state.appointments).length.toString();
         }
-        const summaryCard = document.getElementById('doc-appointments-summary');
-        if (summaryCard){
-          summaryCard.innerHTML = renderAppointmentsSummary(state.appointments);
-        }
+        refreshDoctorAppointmentsSummary();
         alert('Appointment scheduled.');
       } catch(err){
         console.error(err);
@@ -1504,12 +1665,68 @@ async function openPatientAsDoctor(p){
       }
     });
 
-    const summaryCard = document.getElementById('doc-appointments-summary');
-    if (summaryCard){
-      summaryCard.innerHTML = renderAppointmentsSummary(state.appointments);
-    }
+    refreshDoctorAppointmentsSummary();
   } catch(err){
     console.error(err);
     view.innerHTML = `<div class="placeholder">Unable to load patient record at the moment.</div>`;
   }
+}
+const HIDDEN_MESSAGE_KEY_PREFIX = 'clinconnect-hidden-msgs';
+
+function storageKeyForHiddenMessages(userId){
+  return `${HIDDEN_MESSAGE_KEY_PREFIX}-${userId}`;
+}
+
+function getCurrentUserHiddenSet(){
+  const userId = state.me?.id;
+  if (!userId){ return new Set(); }
+  if (!state.hiddenByUser[userId]){
+    let stored = [];
+    try{
+      const raw = localStorage.getItem(storageKeyForHiddenMessages(userId));
+      stored = raw ? JSON.parse(raw) : [];
+    } catch(_err){
+      stored = [];
+    }
+    state.hiddenByUser[userId] = new Set((stored || []).map((id)=> String(id)));
+  }
+  return state.hiddenByUser[userId];
+}
+
+function persistHiddenSetForCurrentUser(){
+  const userId = state.me?.id;
+  if (!userId){ return; }
+  const set = state.hiddenByUser[userId];
+  if (!set){ return; }
+  try{
+    localStorage.setItem(storageKeyForHiddenMessages(userId), JSON.stringify(Array.from(set)));
+  } catch(_err){}
+}
+
+function hideMessageForCurrentUser(messageId){
+  if (!messageId){ return; }
+  const set = getCurrentUserHiddenSet();
+  if (!set.has(String(messageId))){
+    set.add(String(messageId));
+    persistHiddenSetForCurrentUser();
+  }
+}
+
+function unhideMessageForCurrentUser(messageId){
+  if (!messageId){ return; }
+  const set = getCurrentUserHiddenSet();
+  if (set.delete(String(messageId))){
+    persistHiddenSetForCurrentUser();
+  }
+}
+
+function filterMessagesForDisplay(messages){
+  const set = getCurrentUserHiddenSet();
+  if (!set.size){ return messages || []; }
+  return (messages || []).filter((msg)=>{
+    const id = String(msg.id);
+    if (set.has(id)){ return false; }
+    if (msg.reply_to && set.has(String(msg.reply_to))){ return false; }
+    return true;
+  });
 }

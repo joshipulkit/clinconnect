@@ -39,6 +39,12 @@
     <symbol id="icon-plus" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 4a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 0 1 0-2h6V5a1 1 0 0 1 1-1Z"/>
     </symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M5 3a3 3 0 0 0-3 3v12a2 2 0 0 0 2 2h7a3 3 0 0 1 3 3V6a3 3 0 0 0-3-3H5Zm9 0v17.17A3.001 3.001 0 0 1 16 19h5a1 1 0 0 0 1-1V5a2 2 0 0 0-2-2h-6Z"/>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M6.343 5.929a1 1 0 0 1 1.414-1.414L12 8.757l4.243-4.242a1 1 0 0 1 1.414 1.414L13.414 10.17l4.243 4.243a1 1 0 1 1-1.414 1.414L12 11.586l-4.243 4.242a1 1 0 0 1-1.414-1.414l4.243-4.242-4.243-4.242Z"/>
+    </symbol>
     <symbol id="icon-calendar" viewBox="0 0 24 24" fill="currentColor">
       <path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 7H5v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9Zm-4 3a1 1 0 0 1 0 2h-2a1 1 0 1 1 0-2h2ZM5 7h14V6a1 1 0 0 0-1-1h-1v1a1 1 0 1 1-2 0V5H8v1a1 1 0 0 1-2 0V5H5a1 1 0 0 0-1 1v1Z"/>
     </symbol>
@@ -66,6 +72,7 @@
       <nav class="nav" id="top-nav">
         <a href="#" id="nav-home" class="active"><svg class="ico" aria-hidden="true"><use href="#icon-home"/></svg><span class="hide-sm"> Home</span></a>
         <a href="#" id="nav-about"><svg class="ico" aria-hidden="true"><use href="#icon-info"/></svg><span class="hide-sm"> About</span></a>
+        <a href="#" id="nav-resources"><svg class="ico" aria-hidden="true"><use href="#icon-book"/></svg><span class="hide-sm"> Resources</span></a>
       </nav>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
         <svg class="ico theme-icon" aria-hidden="true"><use href="#icon-sun"/></svg>
@@ -288,16 +295,47 @@
           <div id="pt-timeline" class="timeline"></div>
           <form id="pt-feedback-form" class="chat-composer patient-chat-composer">
             <input type="file" id="pt-feedback-file" accept="image/*" class="sr-only" aria-hidden="true"/>
-            <button type="button" id="pt-feedback-attach" class="chat-attach-btn" aria-label="Upload a photo">
-              <svg class="ico" aria-hidden="true"><use href="#icon-plus"/></svg>
-            </button>
+            <div class="chat-attach-group">
+              <button type="button" id="pt-feedback-attach" class="chat-attach-btn" aria-label="Upload a photo" title="Attach a photo to your update">
+                <svg class="ico" aria-hidden="true"><use href="#icon-plus"/></svg>
+              </button>
+              <span class="microcopy">Add photo</span>
+              <span id="pt-feedback-file-label" class="chat-attach-label hidden" aria-live="polite"></span>
+              <button type="button" id="pt-feedback-clear" class="chat-attach-clear hidden" aria-label="Remove selected photo" title="Clear attached photo">
+                <svg class="ico" aria-hidden="true"><use href="#icon-x"/></svg>
+              </button>
+            </div>
             <textarea id="pt-feedback-text" rows="2" placeholder="Share an update or ask a question..." aria-label="Message your care team"></textarea>
             <div class="composer-actions">
-              <button type="submit" id="pt-feedback-send" class="btn primary small">Send</button>
+              <button type="submit" id="pt-feedback-send" class="btn primary small" title="Send your update">Send</button>
             </div>
           </form>
           <h4>Scheduled Appointments</h4>
           <div id="pt-appointments" class="timeline"></div>
+        </section>
+        <section class="patient-support">
+          <h4>Care Support</h4>
+          <div class="support-grid">
+            <article class="support-card">
+              <h5>Before your visit</h5>
+              <ul>
+                <li>Note symptom changes and medication updates.</li>
+                <li>Photograph healing progress to share with your doctor.</li>
+              </ul>
+            </article>
+            <article class="support-card">
+              <h5>Emergency?</h5>
+              <p class="muted small">In case of an emergency, please call your assigned doctor immediately.</p>
+            </article>
+            <article class="support-card">
+              <h5>Resources</h5>
+              <ul>
+                <li><a href="#resource-post-op" class="text-link" id="patient-link-post-op">Post-operative care checklist</a></li>
+                <li><a href="#resource-pain" class="text-link" id="patient-link-pain">Pain management tips</a></li>
+                <li><a href="#resource-emergency" class="text-link" id="patient-link-emergency">Emergency guidance</a></li>
+              </ul>
+            </article>
+          </div>
         </section>
       </div>
     </section>
@@ -331,6 +369,8 @@
             </div>
           </article>
         </div>
+        <div id="doc-insights" class="card doc-insights"></div>
+        <div id="doc-appointments-summary" class="card hidden doc-appointments-inline"></div>
       </div>
 
       <div class="doc-main">
@@ -346,7 +386,6 @@
           <div id="doc-patient-view" class="doc-view hidden"></div>
         </section>
       </div>
-      <div id="doc-appointments-summary" class="card hidden"></div>
     </section>
 
 <section id="about" class="card hidden">
@@ -389,8 +428,54 @@
     </div>
   </div>
 </section>
-  </main>
 
+<section id="resources" class="card hidden">
+  <div class="resources-header">
+    <span class="eyebrow">Resource Library</span>
+    <h3>Expert guidance for every stage of recovery</h3>
+    <p class="muted">Share these articles with patients and colleagues to keep everyone aligned on expectations and escalation steps.</p>
+  </div>
+  <div class="resources-grid">
+    <article class="resource-article" id="resource-post-op">
+      <h4>Post-operative care checklist</h4>
+      <p>Ensure every patient leaves with clear instructions covering hygiene, diet, activity, and warning signs. Use this checklist to reinforce discharge conversations.</p>
+      <ol>
+        <li>Protect the surgical site: gentle rinses, no straws, no smoking.</li>
+        <li>Nutrition plan: soft foods, hydration goals, supplements if prescribed.</li>
+        <li>Medication schedule: antibiotics, anti-inflammatories, analgesics, and when to escalate.</li>
+        <li>Daily photo log: request before/after images to track healing progress.</li>
+        <li>Follow-up reminder: confirm next appointment and provide contact contingency.</li>
+      </ol>
+    </article>
+    <article class="resource-article" id="resource-pain">
+      <h4>Pain management tips</h4>
+      <p>Help patients differentiate expected soreness from complications and understand how to use their prescriptions responsibly.</p>
+      <ul>
+        <li><strong>Baseline discomfort:</strong> educate that throbbing in first 48 hours is typical; ice alternating with rest helps.</li>
+        <li><strong>Medication spacing:</strong> stagger NSAIDs and prescribed analgesics to maintain consistent coverage.</li>
+        <li><strong>Adjunct support:</strong> highlight sleep, hydration, and mindfulness techniques to reduce stress-driven pain.</li>
+        <li><strong>Red flags:</strong> uncontrolled pain beyond 72 hours, sudden spikes, or medication intolerance requires immediate outreach.</li>
+        <li><strong>Documentation:</strong> encourage patients to log doses and pain scores to share during reviews.</li>
+      </ul>
+    </article>
+    <article class="resource-article" id="resource-emergency">
+      <h4>Emergency guidance</h4>
+      <p>Define when patients should bypass asynchronous updates and call the care team or emergency services.</p>
+      <div class="emergency-panel">
+        <h5>Contact the clinic immediately if:</h5>
+        <ul>
+          <li>Bleeding persists longer than 20 minutes despite pressure.</li>
+          <li>Facial swelling doubles in size overnight or obstructs breathing.</li>
+          <li>Fever exceeds 101°F (38.3°C) or chills accompany incision changes.</li>
+          <li>Neurological symptoms emerge: numbness, vision changes, difficulty speaking.</li>
+        </ul>
+        <p class="muted small">In life-threatening scenarios (airway compromise, loss of consciousness), call local emergency services first before contacting the clinic.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+  </main>
   <footer class="site-footer">
     <div class="container">
       <small>© <span id="year"></span> ClinConnect · Navavidha Kale and Pulkit Joshi</small>

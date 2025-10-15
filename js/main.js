@@ -320,6 +320,7 @@ function applyTheme(theme){
   }
   if (toggle){
     toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    toggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
   }
 }
 
@@ -781,7 +782,8 @@ function initHeroSlider(){
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('year').textContent = new Date().getFullYear();
+  const yearEl = document.getElementById('year');
+  if (yearEl){ yearEl.textContent = String(new Date().getFullYear()); }
   populatePhoneCountrySelect();
 
     // Theme
@@ -817,23 +819,51 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tabSignup = document.getElementById('tab-signup');
   const loginPanel = document.getElementById('login-panel');
   const signupPanel = document.getElementById('signup-panel');
-  tabLogin.addEventListener('click', () => { tabLogin.classList.add('active'); tabSignup.classList.remove('active'); loginPanel.classList.add('active'); signupPanel.classList.remove('active'); });
-  tabSignup.addEventListener('click', () => { tabSignup.classList.add('active'); tabLogin.classList.remove('active'); signupPanel.classList.add('active'); loginPanel.classList.remove('active'); });
+  const activateTab = (mode = 'login')=>{
+    if (!tabLogin || !tabSignup || !loginPanel || !signupPanel){ return; }
+    const isLogin = mode === 'login';
+    tabLogin.classList.toggle('active', isLogin);
+    tabSignup.classList.toggle('active', !isLogin);
+    tabLogin.setAttribute('aria-selected', isLogin ? 'true' : 'false');
+    tabSignup.setAttribute('aria-selected', isLogin ? 'false' : 'true');
+    tabLogin.setAttribute('tabindex', isLogin ? '0' : '-1');
+    tabSignup.setAttribute('tabindex', isLogin ? '-1' : '0');
+    loginPanel.classList.toggle('active', isLogin);
+    signupPanel.classList.toggle('active', !isLogin);
+    loginPanel.hidden = !isLogin;
+    signupPanel.hidden = isLogin;
+  };
+  tabLogin?.addEventListener('click', () => activateTab('login'));
+  tabSignup?.addEventListener('click', () => activateTab('signup'));
+  activateTab('login');
 
   // Nav
   const menuBtn = document.getElementById('menu-toggle');
   const topNav = document.getElementById('top-nav');
   const navLinks = topNav ? Array.from(topNav.querySelectorAll('a')) : [];
-  const closeNav = () => topNav?.classList.remove('open');
+  const updateMenuToggle = (open)=>{
+    if (!menuBtn){ return; }
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  };
+  updateMenuToggle(false);
+  const closeNav = () => {
+    topNav?.classList.remove('open');
+    updateMenuToggle(false);
+  };
 
   const setActiveNav = (targetId) => {
     navLinks.forEach((link)=> link.classList.toggle('active', link.id === targetId));
   };
 
-  menuBtn.addEventListener('click', ()=> topNav.classList.toggle('open'));
+  menuBtn?.addEventListener('click', ()=>{
+    if (!topNav){ return; }
+    const isOpen = topNav.classList.toggle('open');
+    updateMenuToggle(isOpen);
+  });
   const goToHome = ({ focus } = {})=>{
     showOnly('#auth-section');
-    if (focus === 'login'){ tabLogin.click(); }
+    if (focus === 'login' || focus === 'signup'){ activateTab(focus); }
     setActiveNav('nav-home');
     closeNav();
   };
@@ -849,9 +879,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     setActiveNav('nav-resources');
     closeNav();
   };
-  document.getElementById('nav-home').addEventListener('click', (e)=>{ e.preventDefault(); goToHome({ focus: 'login' }); });
-  document.getElementById('nav-about').addEventListener('click', (e)=>{ e.preventDefault(); goToAbout(); });
-  document.getElementById('nav-resources').addEventListener('click', (e)=>{ e.preventDefault(); goToResources(); });
+  document.getElementById('nav-home')?.addEventListener('click', (e)=>{ e.preventDefault(); goToHome({ focus: 'login' }); });
+  document.getElementById('nav-about')?.addEventListener('click', (e)=>{ e.preventDefault(); goToAbout(); });
+  document.getElementById('nav-resources')?.addEventListener('click', (e)=>{ e.preventDefault(); goToResources(); });
   document.getElementById('hero-login')?.addEventListener('click', (e)=>{ e.preventDefault(); goToLogin(); });
   document.getElementById('hero-learn')?.addEventListener('click', (e)=>{ e.preventDefault(); goToAbout(); });
   document.getElementById('about-login')?.addEventListener('click', (e)=>{ e.preventDefault(); goToLogin(); });
@@ -891,7 +921,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-    const triggerPasswordReset = async () => {
+  const triggerPasswordReset = async () => {
     if (!state.me){ alert('You must be logged in to change your password.'); return; }
     const email = state.me.email;
     try{
@@ -913,7 +943,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Forms
   document.getElementById('signup-form').addEventListener('submit', handleSignup);
   document.getElementById('login-form').addEventListener('submit', handleLogin);
-    const categorySelect = document.getElementById('su-category');
+  const categorySelect = document.getElementById('su-category');
   const doctorFields = document.getElementById('doctor-fields');
   const patientFields = document.getElementById('patient-fields');
   const doctorInputs = doctorFields ? doctorFields.querySelectorAll('input') : [];
@@ -990,7 +1020,8 @@ async function profileByIdentifier(identifier){
     if (error){ console.error(error); return null; }
     return data || null;
   }
-  const normalized = normalizeId(raw);  const { data, error } = await supabase
+  const normalized = normalizeId(raw);
+  const { data, error } = await supabase
     .from('profiles')
     .select('id, email, category, employee_id, patient_id')
     .or(`employee_id.eq.${normalized},patient_id.eq.${normalized}`)

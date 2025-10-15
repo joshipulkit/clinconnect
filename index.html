@@ -15,6 +15,9 @@
     <symbol id="icon-info" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm.75 15.5v-6h-1.5v6h1.5Zm0-8.5v-2h-1.5v2h1.5Z"/>
     </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M4 6.75A1.25 1.25 0 0 1 5.25 5.5h13.5a1.25 1.25 0 1 1 0 2.5H5.25A1.25 1.25 0 0 1 4 6.75Zm0 5.25A1.25 1.25 0 0 1 5.25 10.5h13.5a1.25 1.25 0 1 1 0 2.5H5.25A1.25 1.25 0 0 1 4 12Zm0 5.25a1.25 1.25 0 0 1 1.25-1.25h13.5a1.25 1.25 0 1 1 0 2.5H5.25A1.25 1.25 0 0 1 4 17.25Z"/>
+    </symbol>
     <symbol id="icon-lock" viewBox="0 0 24 24" fill="currentColor">
       <path d="M17 10h-1V7a4 4 0 0 0-8 0v3H7a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1Zm-5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm-3-6V7a2 2 0 1 1 4 0v3h-4Z"/>
     </symbol>
@@ -28,7 +31,7 @@
       <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm6 6v2h6V9h-6Zm0 4v2h6v-2h-6Zm-4-4.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0Zm3 5.5a2 2 0 0 0-4 0v1h4v-1Z"/>
     </symbol>
     <symbol id="icon-phone" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M6.62 3.2a1 1 0 0 1 1.11-.27l3 1.2a1 1 0 0 1 .62.92v2.5a1 1 0 0 1-.3.71l-1.5 1.5a10.97 10.97 0 0 0 4.95 4.95l1.5-1.5a1 1 0 0 1 .71-.3h2.5a1 1 0 0 1 .92.62l1.2 3a1 1 0 0 1-.27 1.11l-2 2a2 2 0 0 1-2.05.5c-2.2-.74-4.2-1.94-5.94-3.68-1.74-1.75-2.94-3.75-3.68-5.95a2 2 0 0 1 .5-2.05l2-2Z"/>
+      <path d="M7.5 1.5A2.25 2.25 0 0 0 5.25 3.75v16.5A2.25 2.25 0 0 0 7.5 22.5h9a2.25 2.25 0 0 0 2.25-2.25V3.75A2.25 2.25 0 0 0 16.5 1.5h-9Zm4.5 18a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm3-15H9a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5Z"/>
     </symbol>
     <symbol id="icon-mail" viewBox="0 0 24 24" fill="currentColor">
       <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v.217l7 5.25 7-5.25V5H5Zm14 3.383-6.445 4.83a1 1 0 0 1-1.11 0L5 8.383V19h14V8.383Z"/>
@@ -61,7 +64,10 @@
 
   <header class="site-header">
     <div class="container header-inner">
-      <button id="menu-toggle" class="menu-btn" aria-label="Toggle menu">☰</button>
+      <button id="menu-toggle" class="menu-btn" type="button" aria-label="Open menu" aria-controls="top-nav" aria-expanded="false">
+        <svg class="ico" aria-hidden="true"><use href="#icon-menu"/></svg>
+        <span class="sr-only">Menu</span>
+      </button>
       <div class="brand-wrap">
         <img src="assets/images/pgimer_logo.png" alt="PGIMER logo" class="logo"/>
         <div class="brand-text">
@@ -69,7 +75,7 @@
           <p class="tagline">A patient follow-up portal of the Department of Oral and Maxillofacial Surgery, PGIMER, Chandigarh</p>
         </div>
       </div>
-      <nav class="nav" id="top-nav">
+      <nav class="nav" id="top-nav" aria-label="Primary">
         <a href="#" id="nav-home" class="active"><svg class="ico" aria-hidden="true"><use href="#icon-home"/></svg><span class="hide-sm"> Home</span></a>
         <a href="#" id="nav-about"><svg class="ico" aria-hidden="true"><use href="#icon-info"/></svg><span class="hide-sm"> About</span></a>
         <a href="#" id="nav-resources"><svg class="ico" aria-hidden="true"><use href="#icon-book"/></svg><span class="hide-sm"> Resources</span></a>
@@ -144,9 +150,9 @@
     </section>
 
     <section class="card auth-card" id="auth-section">
-      <div class="tabs">
-        <button class="tab active" id="tab-login" aria-controls="login-panel"><svg class="ico" aria-hidden="true"><use href="#icon-lock"/></svg> Login</button>
-        <button class="tab" id="tab-signup" aria-controls="signup-panel"><svg class="ico" aria-hidden="true"><use href="#icon-user-plus"/></svg> Sign up</button>
+      <div class="tabs" role="tablist" aria-label="Authentication">
+        <button class="tab active" id="tab-login" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="login-panel"><svg class="ico" aria-hidden="true"><use href="#icon-lock"/></svg> Login</button>
+        <button class="tab" id="tab-signup" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="signup-panel"><svg class="ico" aria-hidden="true"><use href="#icon-user-plus"/></svg> Sign up</button>
       </div>
 
       <!-- Login Panel -->
@@ -171,7 +177,7 @@
       </div>
 
       <!-- Signup Panel -->
-      <div id="signup-panel" class="panel" role="tabpanel" aria-labelledby="tab-signup">
+      <div id="signup-panel" class="panel" role="tabpanel" aria-labelledby="tab-signup" hidden>
         <form id="signup-form">
           <label>
             <span class="lbl">Category <span class="req">*</span></span>

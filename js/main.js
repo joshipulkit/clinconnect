@@ -1,12 +1,17 @@
-// ClinConnect — Supabase Auth edition (email/password), deployable on GitHub Pages
+// OMFS, PGIMER — Supabase Auth edition (email/password), deployable on GitHub Pages
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.CLINCONNECT_SUPABASE;
+const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.OMFS_PGIMER_SUPABASE;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const state = { me: null, session: null, doctorRegistry: [], doctorProfiles: [], appointments: [], assignedPatients: [], selectedPatientId: null, hiddenByUser: {} };
+const state = { me: null, session: null, doctorRegistry: [], doctorProfiles: [], appointments: [], assignedPatients: [], selectedPatientId: null, hiddenByUser: {}, patientAppointments: [], patientMessages: [], patientHistory: '', patientComposer: null };
 let heroIntervalId = null;
-const THEME_STORAGE_KEY = 'clinconnect-theme';
+const THEME_STORAGE_KEY = 'omfs-pgimer-theme';
+const LANG_STORAGE_KEY = 'omfs-pgimer-language';
+const SUPPORTED_LANGUAGES = ['en','hi','pa'];
+let currentLanguage = 'en';
+let sitePathPrefixSegments = [];
+let sitePathSuffixSegments = [];
 const COUNTRY_CODES = [
   { name: 'Afghanistan', dial_code: '93', iso2: 'AF' },
   { name: 'Albania', dial_code: '355', iso2: 'AL' },
@@ -256,6 +261,126 @@ const COUNTRY_CODES = [
   { name: 'Åland Islands', dial_code: '358', iso2: 'AX' }
 ];
 
+const translations = window.OMFS_PGIMER_LANG_PACKS || {};
+
+function translate(key, params = {}, lang = currentLanguage){
+  const fallback = translations.en || {};
+  const dict = translations[lang] || fallback;
+  let phrase = (dict && dict[key] !== undefined) ? dict[key] : fallback[key] || '';
+  if (!phrase){ return ''; }
+  return Object.entries(params).reduce((acc, [token, value]) => acc.replaceAll(`{${token}}`, value), phrase);
+}
+
+function normalizeLanguage(lang){
+  const code = (lang || '').toLowerCase();
+  if (code === 'pu'){ return 'pa'; }
+  return SUPPORTED_LANGUAGES.includes(code) ? code : 'en';
+}
+
+function applyLanguage(lang){
+  const normalized = normalizeLanguage(lang);
+  const nextLang = normalized;
+  currentLanguage = nextLang;
+  try{
+    localStorage.setItem(LANG_STORAGE_KEY, currentLanguage);
+  } catch(_e){}
+  const htmlLang = currentLanguage === 'hi' ? 'hi' : currentLanguage === 'pa' ? 'pa' : 'en';
+  document.documentElement.setAttribute('lang', htmlLang);
+
+  document.querySelectorAll('[data-i18n]').forEach((node)=>{
+    const key = node.dataset.i18n;
+    const text = translate(key);
+    if (text){ node.textContent = text; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((node)=>{
+    const key = node.dataset.i18nPlaceholder;
+    const text = translate(key);
+    if (text){ node.setAttribute('placeholder', text); }
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach((node)=>{
+    const key = node.dataset.i18nAriaLabel;
+    const text = translate(key);
+    if (text){ node.setAttribute('aria-label', text); }
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach((node)=>{
+    const key = node.dataset.i18nTitle;
+    const text = translate(key);
+    if (text){ node.setAttribute('title', text); }
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach((node)=>{
+    const key = node.dataset.i18nHtml;
+    const html = translate(key);
+    if (html){ node.innerHTML = html; }
+  });
+
+  document.querySelectorAll('#language-toggle .lang-btn').forEach((btn)=>{
+    const isActive = btn.dataset.lang === currentLanguage;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+
+  populateDoctorSelect();
+  if (state.me){
+    if (state.me.category === 'patient'){
+      refreshPatientLanguage();
+    } else if (state.me.category === 'doctor'){
+      refreshDoctorLanguage();
+    }
+  }
+}
+
+function pathSegments(){
+  return window.location.pathname.split('/').filter(Boolean);
+}
+
+function detectLanguageFromPath(){
+  const segments = pathSegments();
+  const idx = segments.findIndex((seg)=> SUPPORTED_LANGUAGES.includes(seg.toLowerCase()));
+  let lang = 'en';
+  let found = false;
+  let prefix = segments.slice();
+  let suffix = [];
+  if (idx !== -1){
+    lang = segments[idx].toLowerCase();
+    prefix = segments.slice(0, idx);
+    suffix = segments.slice(idx + 1);
+    found = true;
+  } else if (prefix.length && prefix[prefix.length - 1].includes('.')){
+    prefix = prefix.slice(0, -1);
+  }
+  return {
+    lang: normalizeLanguage(lang),
+    prefixSegments: prefix,
+    suffixSegments: suffix,
+    found
+  };
+}
+
+function buildPathForLanguage(lang){
+  const parts = [...sitePathPrefixSegments];
+  if (lang){ parts.push(lang); }
+  if (sitePathSuffixSegments.length){ parts.push(...sitePathSuffixSegments); }
+  const joined = parts.join('/');
+  return joined ? `/${joined}` : '/';
+}
+
+function setLanguage(lang, { updateUrl = true, replace = false } = {}){
+  const normalized = normalizeLanguage(lang);
+  if (updateUrl){
+    const newPath = buildPathForLanguage(normalized);
+    const newUrl = `${newPath}${window.location.search}${window.location.hash}`;
+    const stateData = { lang: normalized };
+    if (replace){
+      window.history.replaceState(stateData, '', newUrl);
+    } else {
+      window.history.pushState(stateData, '', newUrl);
+    }
+    const info = detectLanguageFromPath();
+    sitePathPrefixSegments = info.prefixSegments;
+    sitePathSuffixSegments = info.suffixSegments;
+  }
+  applyLanguage(normalized);
+}
 
 // Utilities
 function normalizeId(id){ return (id || '').trim().toUpperCase(); }
@@ -331,7 +456,9 @@ function populateDoctorSelect(){
   select.innerHTML = '';
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = state.doctorRegistry.length ? 'Select doctor' : 'No doctors available';
+  placeholder.textContent = state.doctorRegistry.length
+    ? translate('signup.assignedDoctorOption')
+    : translate('signup.noDoctorOption');
   select.appendChild(placeholder);
   let found = false;
   for (const doc of state.doctorRegistry){
@@ -564,17 +691,17 @@ function renderPatientNextAppointmentBanner(container, appointment){
   const doctorRaw = (appointment.doctor?.fullname || '').trim();
   const doctorLabel = doctorRaw
     ? (/^dr\b/i.test(doctorRaw) ? doctorRaw : `Dr. ${doctorRaw}`)
-    : 'your doctor';
-  const doctorName = esc(doctorLabel);
-  const noteSuffix = appointment.notes ? ` — ${esc(appointment.notes)}` : '';
+    : translate('patient.next.noDoctorLabel');
+  const noteSuffix = appointment.notes ? translate('patient.next.noteSeparator') + appointment.notes : '';
+  const noteKey = doctorRaw ? 'patient.next.bannerNote' : 'patient.next.bannerNoteNoDoctor';
   container.innerHTML = `
     <div class="banner-icon" aria-hidden="true">
       <svg class="ico" aria-hidden="true"><use href="#icon-calendar"/></svg>
     </div>
     <div class="banner-content">
-      <p class="banner-title">Next appointment confirmed</p>
-      <p class="banner-meta"><small>${esc(info.day)}</small>${esc(info.date)} · ${esc(info.time)} IST</p>
-      <p class="banner-note">With ${doctorName}${noteSuffix}</p>
+      <p class="banner-title">${esc(translate('patient.next.bannerTitle'))}</p>
+      <p class="banner-meta">${translate('patient.next.bannerMetaHtml', { day: info.day, date: info.date, time: info.time })}</p>
+      <p class="banner-note">${esc(translate(noteKey, { doctor: doctorLabel, note: noteSuffix }))}</p>
     </div>
   `;
   container.classList.remove('hidden');
@@ -584,16 +711,18 @@ function renderPatientAppointmentsList(container, appointments){
   if (!container){ return; }
   const list = appointments || [];
   if (!list.length){
-    container.innerHTML = `<div class="placeholder muted">No appointments scheduled yet.</div>`;
+    container.innerHTML = `<div class="placeholder muted">${esc(translate('patient.appointments.empty'))}</div>`;
     return;
   }
   container.innerHTML = list.map((appt)=>{
     const info = formatAppointmentDateTime(appt.scheduled_at);
-    const doctorName = appt.doctor?.fullname ? esc(appt.doctor.fullname) : 'Doctor';
+    const doctorNameRaw = (appt.doctor?.fullname || '').trim();
+    const doctorDisplay = doctorNameRaw || translate('patient.appointments.doctorFallback');
+    const metaText = translate('patient.appointments.itemMeta', { day: info.day, date: info.date, time: info.time });
     const noteHtml = appt.notes ? `<p>${esc(appt.notes)}</p>` : '';
     return `<div class="item">
-      <div><strong>${doctorName}</strong></div>
-      <div class="meta">${esc(info.day)}, ${esc(info.date)} at ${esc(info.time)} IST</div>
+      <div><strong>${esc(doctorDisplay)}</strong></div>
+      <div class="meta">${esc(metaText)}</div>
       ${noteHtml}
     </div>`;
   }).join('');
@@ -628,8 +757,11 @@ function renderConversationMessage(message, viewer){
   const isMine = viewer === 'patient'
     ? message.author === 'patient'
     : message.author === 'doctor';
-  const senderLabel = message.author === 'doctor' ? 'Doctor' : 'Patient';
-  const metaLabel = isMine ? 'You' : senderLabel;
+  const lang = viewer === 'doctor' ? 'en' : currentLanguage;
+  const senderLabel = message.author === 'doctor'
+    ? translate('patient.timeline.messageMeta.doctor', {}, lang)
+    : translate('patient.timeline.messageMeta.patient', {}, lang);
+  const metaLabel = isMine ? translate('patient.timeline.messageMeta.you', {}, lang) : senderLabel;
   const timestamp = message.created_at ? formatAppointmentDateTime(message.created_at).label : '';
   const bodyParts = [];
   if (message.text){
@@ -638,19 +770,19 @@ function renderConversationMessage(message, viewer){
   if (message.image_path){
     const { data: pub } = supabase.storage.from('media').getPublicUrl(message.image_path);
     if (pub?.publicUrl){
-      bodyParts.push(`<img src="${esc(pub.publicUrl)}" alt="attachment"/>`);
+      bodyParts.push(`<img src="${esc(pub.publicUrl)}" alt="${esc(translate('patient.timeline.attachmentAlt', {}, lang))}"/>`);
     }
   }
   const bodyHtml = bodyParts.length ? `<div class="chat-body">${bodyParts.join('')}</div>` : '';
   const actionsHtml = `<div class="chat-actions">
-    <button type="button" class="chat-reply-toggle" data-id="${message.id}" title="Reply to this message">Reply</button>
-    <button type="button" class="chat-delete-mine" data-id="${message.id}" title="Hide this message from your view">Delete</button>
+    <button type="button" class="chat-reply-toggle" data-id="${message.id}" title="${esc(translate('patient.chat.replyToggle', {}, lang))}">${esc(translate('patient.chat.replyAction', {}, lang))}</button>
+    <button type="button" class="chat-delete-mine" data-id="${message.id}" title="${esc(translate('patient.chat.delete', {}, lang))}">${esc(translate('patient.chat.deleteAction', {}, lang))}</button>
   </div>`;
   const replyFormHtml = `<div class="chat-reply-form hidden" data-parent="${message.id}">
-      <textarea rows="3" placeholder="Type your reply..."></textarea>
+      <textarea rows="3" placeholder="${esc(translate('patient.chat.replyPlaceholder', {}, lang))}"></textarea>
       <div class="chat-reply-buttons">
-        <button type="button" class="btn primary small chat-reply-submit" data-id="${message.id}" title="Send reply">Send</button>
-        <button type="button" class="btn ghost small chat-reply-cancel" title="Cancel reply">Cancel</button>
+        <button type="button" class="btn primary small chat-reply-submit" data-id="${message.id}" title="${esc(translate('patient.chat.replySubmit', {}, lang))}">${esc(translate('patient.chat.replySubmit', {}, lang))}</button>
+        <button type="button" class="btn ghost small chat-reply-cancel" title="${esc(translate('patient.chat.replyCancel', {}, lang))}">${esc(translate('patient.chat.replyCancel', {}, lang))}</button>
       </div>
     </div>`;
   const childrenHtml = message.replies.length
@@ -668,6 +800,7 @@ function renderConversationMessage(message, viewer){
 }
 
 function wireReplyHandlers(container, { viewer, targetUserId, refresh }){
+  const lang = viewer === 'doctor' ? 'en' : currentLanguage;
   container.querySelectorAll('.chat-reply-toggle').forEach((btn)=>{
     btn.addEventListener('click', ()=>{
       const message = btn.closest('.chat-message');
@@ -698,7 +831,7 @@ function wireReplyHandlers(container, { viewer, targetUserId, refresh }){
       if (!form){ return; }
       const textarea = form.querySelector('textarea');
       const text = (textarea?.value || '').trim();
-      if (!text){ alert('Write a reply.'); return; }
+      if (!text){ alert(translate('patient.chat.replyAlert', {}, lang)); return; }
       const parentId = btn.dataset.id;
       const row = {
         user_id: targetUserId,
@@ -716,7 +849,7 @@ function wireReplyHandlers(container, { viewer, targetUserId, refresh }){
         await refresh();
       } catch(err){
         console.error(err);
-        alert('Could not send reply.');
+        alert(translate('patient.chatReplyError', {}, lang));
       } finally {
         btn.disabled = false;
       }
@@ -726,7 +859,7 @@ function wireReplyHandlers(container, { viewer, targetUserId, refresh }){
     btn.addEventListener('click', async ()=>{
       const messageId = btn.dataset.id;
       if (!messageId){ return; }
-      if (!window.confirm('Hide this message from your conversation view?')){ return; }
+      if (!window.confirm(translate('patient.chat.deleteConfirm', {}, lang))){ return; }
       hideMessageForCurrentUser(messageId);
       await refresh();
     });
@@ -785,6 +918,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   const yearEl = document.getElementById('year');
   if (yearEl){ yearEl.textContent = String(new Date().getFullYear()); }
   populatePhoneCountrySelect();
+
+  const detected = detectLanguageFromPath();
+  sitePathPrefixSegments = detected.prefixSegments;
+  sitePathSuffixSegments = detected.suffixSegments;
+  let initialLanguage = detected.lang;
+  if (!detected.found){
+    try{
+      const storedLang = normalizeLanguage(localStorage.getItem(LANG_STORAGE_KEY));
+      if (SUPPORTED_LANGUAGES.includes(storedLang)){ initialLanguage = storedLang; }
+    } catch(_e){}
+  }
+  setLanguage(initialLanguage, { updateUrl: !detected.found || detected.lang !== initialLanguage, replace: true });
+  document.querySelectorAll('#language-toggle .lang-btn').forEach((btn)=>{
+    btn.addEventListener('click', ()=>{
+      const requested = normalizeLanguage(btn.dataset.lang || 'en');
+      if (requested === currentLanguage){ return; }
+      setLanguage(requested, { updateUrl: true, replace: false });
+    });
+  });
+  window.addEventListener('popstate', ()=>{
+    const info = detectLanguageFromPath();
+    sitePathPrefixSegments = info.prefixSegments;
+    sitePathSuffixSegments = info.suffixSegments;
+    applyLanguage(info.lang);
+  });
 
     // Theme
   let currentTheme = resolveInitialTheme();
@@ -1179,43 +1337,103 @@ async function hydrateUserAndRoute(user_id){
   if (me.category === 'patient'){ await showPatientPage(me); } else { await showDoctorPage(me); }
 }
 
-// PATIENT PAGE
-async function showPatientPage(me){
-  showOnly('#patient-page');
-  const det = document.getElementById('pt-details');
-  const assignedDisplay = me.assigned_doctor ? esc(me.assigned_doctor) : '-';
-  const phoneFormatted = formatPhoneDisplay(me.phone);
-  const sinceIST = formatAppointmentDateTime(me.created_at || Date.now());
+function renderPatientDetails(me){
+  if (!me){ return ''; }
+  const name = (me.fullname || '').trim() || '-';
+  const patientId = (me.patient_id || '').trim() || '-';
+  const assignedName = (me.assigned_doctor || '').trim();
+  const assignedDisplay = assignedName ? esc(assignedName) : translate('patient.details.assignedDoctorNone');
+  const phoneDisplay = formatPhoneDisplay(me.phone);
+  const emailDisplay = (me.email || '').trim() || '-';
+  const sinceInfo = me.created_at ? formatAppointmentDateTime(me.created_at) : null;
+  const sinceValue = sinceInfo ? `${sinceInfo.date} ${sinceInfo.time} IST` : '-';
+  return `
+    <div><strong>${translate('patient.details.nameLabel')}:</strong> ${esc(name)}</div>
+    <div><strong>${translate('patient.details.patientIdLabel')}:</strong> ${esc(patientId)}</div>
+    <div><strong>${translate('patient.details.assignedDoctorLabel')}:</strong> ${esc(assignedDisplay)}</div>
+    <div><strong>${translate('patient.details.phoneLabel')}:</strong> ${esc(phoneDisplay)}</div>
+    <div><strong>${translate('patient.details.emailLabel')}:</strong> ${esc(emailDisplay)}</div>
+    <div><strong>${translate('patient.details.sinceLabel')}:</strong> ${esc(sinceValue)}</div>
+  `;
+}
+
+function refreshPatientLanguage(){
+  const me = state.me;
+  if (!me || me.category !== 'patient'){ return; }
+  const name = (me.fullname || '').trim();
   const welcomeTitle = document.getElementById('pt-welcome-title');
   if (welcomeTitle){
-    const name = (me.fullname || '').trim();
-    welcomeTitle.textContent = name ? `Welcome back, ${esc(name)}` : 'Welcome back';
+    welcomeTitle.textContent = translate(name ? 'patient.welcomeTitleNamed' : 'patient.welcomeTitle', { name });
   }
   const welcomeSubtitle = document.getElementById('pt-welcome-subtitle');
   if (welcomeSubtitle){
-    welcomeSubtitle.textContent = assignedDisplay !== '-'
-      ? `Your primary doctor is ${assignedDisplay}. Share updates and track guidance in one place.`
-      : 'You are not yet assigned to a doctor. Contact the care team to get connected.';
+    const assignedName = (me.assigned_doctor || '').trim();
+    welcomeSubtitle.textContent = assignedName
+      ? translate('patient.welcomeSubtitleAssigned', { doctor: assignedName })
+      : translate('patient.welcomeSubtitleUnassigned');
   }
-  det.innerHTML = `
-    <div><strong>Name:</strong> ${esc(me.fullname)}</div>
-    <div><strong>Patient ID:</strong> ${esc(me.patient_id || '-')}</div>
-    <div><strong>Assigned Doctor:</strong> ${assignedDisplay}</div>
-    <div><strong>Phone:</strong> ${esc(phoneFormatted)}</div>
-    <div><strong>Email:</strong> ${esc(me.email || '-')}</div>
-    <div><strong>Since:</strong> ${esc(sinceIST.label)}</div>
-  `;
+  const det = document.getElementById('pt-details');
+  if (det){ det.innerHTML = renderPatientDetails(me); }
+  const historyWrap = document.getElementById('pt-history');
+  if (historyWrap){
+    const historyText = (state.patientHistory || '').trim();
+    if (historyText){
+      historyWrap.innerHTML = esc(historyText).replace(/\n/g, '<br/>');
+      historyWrap.classList.remove('empty');
+    } else {
+      historyWrap.textContent = translate('patient.historyEmpty');
+      historyWrap.classList.add('empty');
+    }
+  }
+  const composer = state.patientComposer;
+  if (composer?.syncAttachState){ composer.syncAttachState(); }
+  const appointments = Array.isArray(state.patientAppointments) ? state.patientAppointments : [];
+  const upcoming = upcomingAppointments(appointments);
+  renderPatientNextAppointmentBanner(document.getElementById('pt-next-appointment'), upcoming[0] || null);
+  renderPatientAppointmentsList(document.getElementById('pt-appointments'), upcoming);
+  renderPatientTimeline(me, { reuse: true });
+}
 
-  // Load medical
+function refreshDoctorLanguage(){
+  // Doctor dashboard remains in English; placeholder for future localization.
+}
+
+// PATIENT PAGE
+async function showPatientPage(me){
+  showOnly('#patient-page');
+  state.patientAppointments = [];
+  state.patientMessages = [];
+  state.patientHistory = '';
+  state.patientComposer = null;
+
+  const name = (me.fullname || '').trim();
+  const welcomeTitle = document.getElementById('pt-welcome-title');
+  if (welcomeTitle){
+    welcomeTitle.textContent = translate(name ? 'patient.welcomeTitleNamed' : 'patient.welcomeTitle', { name });
+  }
+  const welcomeSubtitle = document.getElementById('pt-welcome-subtitle');
+  if (welcomeSubtitle){
+    const assignedName = (me.assigned_doctor || '').trim();
+    welcomeSubtitle.textContent = assignedName
+      ? translate('patient.welcomeSubtitleAssigned', { doctor: assignedName })
+      : translate('patient.welcomeSubtitleUnassigned');
+  }
+
+  const det = document.getElementById('pt-details');
+  if (det){ det.innerHTML = renderPatientDetails(me); }
+
   const { data: med } = await supabase.from('medical').select('*').eq('user_id', me.id).maybeSingle();
   const historyWrap = document.getElementById('pt-history');
   const historyText = (med?.history || '').trim();
-  if (historyText){
-    historyWrap.innerHTML = esc(historyText).replace(/\n/g, '<br/>');
-    historyWrap.classList.remove('empty');
-  } else {
-    historyWrap.textContent = 'Your doctor will add notes here after appointments.';
-    historyWrap.classList.add('empty');
+  state.patientHistory = historyText;
+  if (historyWrap){
+    if (historyText){
+      historyWrap.innerHTML = esc(historyText).replace(/\n/g, '<br/>');
+      historyWrap.classList.remove('empty');
+    } else {
+      historyWrap.textContent = translate('patient.historyEmpty');
+      historyWrap.classList.add('empty');
+    }
   }
 
   const feedbackForm = document.getElementById('pt-feedback-form');
@@ -1231,8 +1449,13 @@ async function showPatientPage(me){
     const hasFile = feedbackFile.files && feedbackFile.files.length > 0;
     const fileName = hasFile ? feedbackFile.files[0].name : '';
     feedbackAttach.classList.toggle('has-file', !!hasFile);
-    feedbackAttach.setAttribute('aria-label', hasFile ? `Photo ready to send: ${fileName}` : 'Upload a photo');
-    feedbackAttach.setAttribute('title', hasFile ? fileName : '');
+    if (hasFile){
+      feedbackAttach.setAttribute('aria-label', translate('patient.chatAttachReady', { file: fileName }));
+      feedbackAttach.setAttribute('title', fileName);
+    } else {
+      feedbackAttach.setAttribute('aria-label', translate('patient.chatAttachAria'));
+      feedbackAttach.setAttribute('title', translate('patient.chatAttachTitle'));
+    }
     if (feedbackFileLabel){
       if (hasFile){
         feedbackFileLabel.textContent = fileName;
@@ -1246,6 +1469,7 @@ async function showPatientPage(me){
       feedbackClear.classList.toggle('hidden', !hasFile);
       feedbackClear.disabled = !hasFile;
       feedbackClear.setAttribute('aria-hidden', hasFile ? 'false' : 'true');
+      feedbackClear.setAttribute('title', translate('patient.chatClearTitle'));
     }
   };
 
@@ -1256,9 +1480,7 @@ async function showPatientPage(me){
   };
 
   if (feedbackAttach && feedbackFile){
-    feedbackAttach.addEventListener('click', ()=>{
-      feedbackFile.click();
-    });
+    feedbackAttach.addEventListener('click', ()=> feedbackFile.click());
     feedbackFile.addEventListener('change', syncAttachState);
   }
   feedbackClear?.addEventListener('click', ()=>{
@@ -1268,13 +1490,14 @@ async function showPatientPage(me){
     feedbackAttach?.focus();
   });
   syncAttachState();
+  state.patientComposer = { syncAttachState };
 
   feedbackForm?.addEventListener('submit', async (event)=>{
     event.preventDefault();
     const text = (feedbackText?.value || '').trim();
     const files = feedbackFile?.files;
     if (!text && (!files || files.length === 0)){
-      alert('Write a message or choose a photo.');
+      alert(translate('patient.chatErrorMissing'));
       return;
     }
     let image_path = null;
@@ -1300,7 +1523,8 @@ async function showPatientPage(me){
       await renderPatientTimeline(me);
     } catch(err){
       console.error(err);
-      const message = err?.message || err?.error_description || 'Could not submit your message. Please try again.';
+      const fallback = translate('patient.chatSubmitError');
+      const message = err?.message || err?.error_description || fallback;
       alert(message);
     } finally {
       if (feedbackSend){ feedbackSend.disabled = false; }
@@ -1308,28 +1532,43 @@ async function showPatientPage(me){
   });
 
   document.getElementById('logout-pt').onclick = async () => {
-    await supabase.auth.signOut(); state.me = null; showOnly('#auth-section');
+    await supabase.auth.signOut();
+    state.me = null;
+    state.patientAppointments = [];
+    state.patientMessages = [];
+    state.patientHistory = '';
+    state.patientComposer = null;
+    showOnly('#auth-section');
   };
 
   await renderPatientTimeline(me);
   const patientAppointments = await loadPatientAppointments(me.id);
-  const upcoming = upcomingAppointments(patientAppointments);
+  state.patientAppointments = patientAppointments || [];
+  const upcoming = upcomingAppointments(state.patientAppointments);
   renderPatientNextAppointmentBanner(document.getElementById('pt-next-appointment'), upcoming[0] || null);
   renderPatientAppointmentsList(document.getElementById('pt-appointments'), upcoming);
 }
 
-async function renderPatientTimeline(me){
-  const { data, error } = await supabase
-    .from('feedback')
-    .select('*')
-    .eq('user_id', me.id)
-    .order('created_at', { ascending: true });
-  if (error){ console.error(error); return; }
+async function renderPatientTimeline(me, { reuse } = {}){
+  let rows = [];
+  if (reuse && Array.isArray(state.patientMessages) && state.patientMessages.length){
+    rows = state.patientMessages;
+  } else {
+    const { data, error } = await supabase
+      .from('feedback')
+      .select('*')
+      .eq('user_id', me.id)
+      .order('created_at', { ascending: true });
+    if (error){ console.error(error); return; }
+    state.patientMessages = data || [];
+    rows = state.patientMessages;
+  }
   const wrap = document.getElementById('pt-timeline');
-  const filtered = filterMessagesForDisplay(data || []);
+  if (!wrap){ return; }
+  const filtered = filterMessagesForDisplay(rows);
   const threads = buildFeedbackThreads(filtered);
   if (!threads.length){
-    wrap.innerHTML = `<div class="placeholder muted">No updates yet. Start the conversation above.</div>`;
+    wrap.innerHTML = `<div class="placeholder muted">${esc(translate('patient.timeline.empty'))}</div>`;
     return;
   }
   wrap.innerHTML = renderConversationThreads(threads, { viewer: 'patient' });
@@ -1343,6 +1582,10 @@ async function renderPatientTimeline(me){
 
 // DOCTOR PAGE
 async function showDoctorPage(me){
+  state.patientComposer = null;
+  state.patientMessages = [];
+  state.patientAppointments = [];
+  state.patientHistory = '';
   showOnly('#doctor-page');
   const placeholder = document.getElementById('doc-patient-placeholder');
   const view = document.getElementById('doc-patient-view');
@@ -1702,7 +1945,7 @@ async function openPatientAsDoctor(p){
     view.innerHTML = `<div class="placeholder">Unable to load patient record at the moment.</div>`;
   }
 }
-const HIDDEN_MESSAGE_KEY_PREFIX = 'clinconnect-hidden-msgs';
+const HIDDEN_MESSAGE_KEY_PREFIX = 'omfs-pgimer-hidden-msgs';
 
 function storageKeyForHiddenMessages(userId){
   return `${HIDDEN_MESSAGE_KEY_PREFIX}-${userId}`;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ClinConnect — Patient Follow-up Portal</title>
+  <title>OMFS, PGIMER — Patient Follow-up Portal</title>
   <meta name="author" content="Author: Dr. Navavidha Kale; Software Design: Pulkit Joshi" />
   <link rel="stylesheet" href="css/styles.css"/>
 </head>
@@ -71,18 +71,25 @@
       <div class="brand-wrap">
         <img src="assets/images/pgimer_logo.png" alt="PGIMER logo" class="logo"/>
         <div class="brand-text">
-          <h1 class="brand">ClinConnect</h1>
-          <p class="tagline">A patient follow-up portal of the Department of Oral and Maxillofacial Surgery, PGIMER, Chandigarh</p>
+          <h1 class="brand">OMFS, PGIMER</h1>
+          <p class="tagline">Patient follow-up portal for the Department of Oral and Maxillofacial Surgery, PGIMER, Chandigarh</p>
         </div>
       </div>
       <nav class="nav" id="top-nav" aria-label="Primary">
-        <a href="#" id="nav-home" class="active"><svg class="ico" aria-hidden="true"><use href="#icon-home"/></svg><span class="hide-sm"> Home</span></a>
-        <a href="#" id="nav-about"><svg class="ico" aria-hidden="true"><use href="#icon-info"/></svg><span class="hide-sm"> About</span></a>
-        <a href="#" id="nav-resources"><svg class="ico" aria-hidden="true"><use href="#icon-book"/></svg><span class="hide-sm"> Resources</span></a>
+        <a href="#" id="nav-home" class="active"><svg class="ico" aria-hidden="true"><use href="#icon-home"/></svg><span class="hide-sm" data-i18n="nav.home">Home</span></a>
+        <a href="#" id="nav-about"><svg class="ico" aria-hidden="true"><use href="#icon-info"/></svg><span class="hide-sm" data-i18n="nav.about">About</span></a>
+        <a href="#" id="nav-resources"><svg class="ico" aria-hidden="true"><use href="#icon-book"/></svg><span class="hide-sm" data-i18n="nav.resources">Resources</span></a>
       </nav>
-      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
-        <svg class="ico theme-icon" aria-hidden="true"><use href="#icon-sun"/></svg>
-      </button>
+      <div class="header-actions">
+        <div class="language-toggle" id="language-toggle" role="group" aria-label="Interface language" data-i18n-aria-label="languageToggle.ariaLabel">
+          <button type="button" class="lang-btn active" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" class="lang-btn" data-lang="hi" aria-pressed="false">हि</button>
+          <button type="button" class="lang-btn" data-lang="pa" aria-pressed="false">ਪੰ</button>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+          <svg class="ico theme-icon" aria-hidden="true"><use href="#icon-sun"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -101,17 +108,17 @@
     <section class="hero" id="hero-section">
       <div class="hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow">Specialty Follow-up Care</span>
-          <h2>Continuity of care for Oral &amp; Maxillofacial Surgery patients</h2>
-          <p>ClinConnect connects PGIMER doctors and patients with secure follow-ups, structured treatment timelines, and informed recovery guidance.</p>
+          <span class="eyebrow" data-i18n="hero.eyebrow">Specialty Follow-up Care</span>
+          <h2 data-i18n="hero.heading">Continuity of care for Oral &amp; Maxillofacial Surgery patients</h2>
+          <p data-i18n="hero.subheading">OMFS, PGIMER keeps surgeons and patients aligned with secure follow-ups, structured timelines, and informed recovery guidance.</p>
           <div class="hero-actions">
-            <a href="#auth-section" class="btn primary" id="hero-login">Login</a>
-            <a href="#about" class="btn ghost" id="hero-learn">Explore features</a>
+            <a href="#auth-section" class="btn primary" id="hero-login" data-i18n="hero.loginCta">Login</a>
+            <a href="#about" class="btn ghost" id="hero-learn" data-i18n="hero.exploreCta">Explore features</a>
           </div>
           <ul class="hero-highlights">
-            <li>Secure doctor-patient communication</li>
-            <li>Structured treatment tracking</li>
-            <li>Photo and document sharing</li>
+            <li data-i18n="hero.highlight1">Secure doctor-patient communication</li>
+            <li data-i18n="hero.highlight2">Structured treatment tracking</li>
+            <li data-i18n="hero.highlight3">Photo and document sharing</li>
           </ul>
         </div>
         <div class="hero-visual">
@@ -121,8 +128,8 @@
                 <img src="assets/images/hero-hospital-wing.png" alt="Modern hospital wing exterior"/>
               </div>
               <div class="hero-slide-caption">
-                <span class="badge">Post-operative Care</span>
-                <p>Coordinate discharge follow-ups with dedicated care pathways.</p>
+                <span class="badge" data-i18n="hero.slide1.badge">Post-operative Care</span>
+                <p data-i18n="hero.slide1.text">Coordinate discharge follow-ups with dedicated care pathways.</p>
               </div>
             </div>
             <div class="hero-slide">
@@ -130,8 +137,8 @@
                 <img src="assets/images/hero-outpatient-clinic.png" alt="Outpatient clinic reception area"/>
               </div>
               <div class="hero-slide-caption">
-                <span class="badge">Clinic Workflow</span>
-                <p>Streamline multi-visit timelines with shared patient dashboards.</p>
+                <span class="badge" data-i18n="hero.slide2.badge">Clinic Workflow</span>
+                <p data-i18n="hero.slide2.text">Streamline multi-visit timelines with shared patient dashboards.</p>
               </div>
             </div>
             <div class="hero-slide">
@@ -139,8 +146,8 @@
                 <img src="assets/images/hero-patient-counseling.png" alt="Clinician offering counseling to a patient"/>
               </div>
               <div class="hero-slide-caption">
-                <span class="badge">Patient Experience</span>
-                <p>Provide guided check-ins and education between appointments.</p>
+                <span class="badge" data-i18n="hero.slide3.badge">Patient Experience</span>
+                <p data-i18n="hero.slide3.text">Provide guided check-ins and education between appointments.</p>
               </div>
             </div>
           </div>
@@ -151,28 +158,28 @@
 
     <section class="card auth-card" id="auth-section">
       <div class="tabs" role="tablist" aria-label="Authentication">
-        <button class="tab active" id="tab-login" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="login-panel"><svg class="ico" aria-hidden="true"><use href="#icon-lock"/></svg> Login</button>
-        <button class="tab" id="tab-signup" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="signup-panel"><svg class="ico" aria-hidden="true"><use href="#icon-user-plus"/></svg> Sign up</button>
+        <button class="tab active" id="tab-login" type="button" role="tab" aria-selected="true" tabindex="0" aria-controls="login-panel"><svg class="ico" aria-hidden="true"><use href="#icon-lock"/></svg> <span data-i18n="auth.loginTab">Login</span></button>
+        <button class="tab" id="tab-signup" type="button" role="tab" aria-selected="false" tabindex="-1" aria-controls="signup-panel"><svg class="ico" aria-hidden="true"><use href="#icon-user-plus"/></svg> <span data-i18n="auth.signupTab">Sign up</span></button>
       </div>
 
       <!-- Login Panel -->
       <div id="login-panel" class="panel active" role="tabpanel" aria-labelledby="tab-login">
         <form id="login-form">
           <label>
-            <span class="lbl">Patient ID / Employee ID / Email</span>
+            <span class="lbl" data-i18n="login.identifierLabel">Patient ID / Employee ID / Email</span>
             <div class="input-icon">
               <svg class="ico" aria-hidden="true"><use href="#icon-user"/></svg>
-              <input type="text" id="login-identifier" required placeholder="e.g. P12345 or EMP456 or user@example.com"/>
+              <input type="text" id="login-identifier" required placeholder="e.g. P12345 or EMP456 or user@example.com" data-i18n-placeholder="login.identifierPlaceholder"/>
             </div>
           </label>
           <label>
-            <span class="lbl">Password</span>
+            <span class="lbl" data-i18n="login.passwordLabel">Password</span>
             <div class="input-icon">
               <svg class="ico" aria-hidden="true"><use href="#icon-lock"/></svg>
-              <input type="password" id="login-password" required/>
+              <input type="password" id="login-password" required data-i18n-placeholder="login.passwordPlaceholder"/>
             </div>
           </label>
-          <button type="submit" class="btn primary" id="login-submit">Login</button>
+          <button type="submit" class="btn primary" id="login-submit" data-i18n="login.submit">Login</button>
         </form>
       </div>
 
@@ -180,94 +187,94 @@
       <div id="signup-panel" class="panel" role="tabpanel" aria-labelledby="tab-signup" hidden>
         <form id="signup-form">
           <label>
-            <span class="lbl">Category <span class="req">*</span></span>
+            <span class="lbl"><span data-i18n="signup.categoryLabel">Category</span> <span class="req">*</span></span>
             <div class="input-icon">
               <svg class="ico" aria-hidden="true"><use href="#icon-tag"/></svg>
-              <select id="su-category" required>
-                <option value="">Select</option>
-                <option value="doctor">Doctor</option>
-                <option value="patient">Patient</option>
+              <select id="su-category" required data-i18n-aria-label="signup.categoryLabel">
+                <option value="" data-i18n="signup.categoryOption.select">Select</option>
+                <option value="doctor" data-i18n="signup.categoryOption.doctor">Doctor</option>
+                <option value="patient" data-i18n="signup.categoryOption.patient">Patient</option>
               </select>
             </div>
           </label>
           <label>
-            <span class="lbl">Full Name <span class="req">*</span></span>
+            <span class="lbl"><span data-i18n="signup.fullnameLabel">Full Name</span> <span class="req">*</span></span>
             <div class="input-icon">
               <svg class="ico" aria-hidden="true"><use href="#icon-user"/></svg>
-              <input type="text" id="su-fullname" required placeholder="Full name"/>
+              <input type="text" id="su-fullname" required placeholder="Full name" data-i18n-placeholder="signup.fullnamePlaceholder"/>
             </div>
           </label>
           <div id="doctor-fields" class="conditional hidden">
             <label>
-              <span class="lbl">Employee ID <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.employeeIdLabel">Employee ID</span> <span class="req">*</span></span>
               <div class="input-icon">
                 <svg class="ico" aria-hidden="true"><use href="#icon-id-card"/></svg>
-                <input type="text" id="su-employee-id" placeholder="e.g. EMP1234" disabled required/>
+                <input type="text" id="su-employee-id" placeholder="e.g. EMP1234" disabled required data-i18n-placeholder="signup.employeeIdPlaceholder"/>
               </div>
             </label>
           </div>
           <div id="patient-fields" class="conditional hidden">
             <label>
-              <span class="lbl">Assigned Doctor <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.assignedDoctorLabel">Assigned Doctor</span> <span class="req">*</span></span>
               <div class="input-icon">
                 <svg class="ico" aria-hidden="true"><use href="#icon-user"/></svg>
-                <select id="su-assigned-doctor" disabled required>
-                  <option value="">Select doctor</option>
+                <select id="su-assigned-doctor" disabled required data-i18n-aria-label="signup.assignedDoctorLabel">
+                  <option value="" data-i18n="signup.assignedDoctorOption">Select doctor</option>
                 </select>
               </div>
             </label>
             <label>
-              <span class="lbl">Doctor Employee ID <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.doctorEmployeeIdLabel">Doctor Employee ID</span> <span class="req">*</span></span>
               <div class="input-icon">
                 <svg class="ico" aria-hidden="true"><use href="#icon-id-card"/></svg>
-                <input type="text" id="su-doctor-employee-id" placeholder="e.g. EMP1234" disabled required/>
+                <input type="text" id="su-doctor-employee-id" placeholder="e.g. EMP1234" disabled required data-i18n-placeholder="signup.doctorEmployeeIdPlaceholder"/>
               </div>
             </label>
             <label>
-              <span class="lbl">Patient ID <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.patientIdLabel">Patient ID</span> <span class="req">*</span></span>
               <div class="input-icon">
                 <svg class="ico" aria-hidden="true"><use href="#icon-id-card"/></svg>
-                <input type="text" id="su-patient-id" placeholder="e.g. P12345" disabled required/>
+                <input type="text" id="su-patient-id" placeholder="e.g. P12345" disabled required data-i18n-placeholder="signup.patientIdPlaceholder"/>
               </div>
             </label>
           </div>
           <div class="grid-2">
             <label>
-              <span class="lbl">Phone Number <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.phoneLabel">Phone Number</span> <span class="req">*</span></span>
               <div class="input-icon phone-input">
                 <svg class="ico" aria-hidden="true"><use href="#icon-phone"/></svg>
-                <select id="su-phone-country" class="phone-country" aria-label="Country code" required>
+                <select id="su-phone-country" class="phone-country" aria-label="Country code" required data-i18n-aria-label="signup.phoneCountryAria">
                   <option value="91" selected>India (+91)</option>
                 </select>
-                <input type="tel" id="su-phone" required placeholder="Phone number"/>
+                <input type="tel" id="su-phone" required placeholder="Phone number" data-i18n-placeholder="signup.phonePlaceholder"/>
               </div>
             </label>
             <label>
-              <span class="lbl">Email <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.emailLabel">Email</span> <span class="req">*</span></span>
               <div class="input-icon">
                 <svg class="ico" aria-hidden="true"><use href="#icon-mail"/></svg>
-                <input type="email" id="su-email" required placeholder="name@example.com"/>
+                <input type="email" id="su-email" required placeholder="name@example.com" data-i18n-placeholder="signup.emailPlaceholder"/>
               </div>
             </label>
           </div>
           <div class="grid-2">
             <label>
-              <span class="lbl">Password <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.passwordLabel">Password</span> <span class="req">*</span></span>
               <div class="input-icon">
                 <svg class="ico" aria-hidden="true"><use href="#icon-lock"/></svg>
-                <input type="password" id="su-pass" required/>
+                <input type="password" id="su-pass" required data-i18n-placeholder="signup.passwordPlaceholder"/>
               </div>
             </label>
             <label>
-              <span class="lbl">Re-enter Password <span class="req">*</span></span>
+              <span class="lbl"><span data-i18n="signup.confirmPasswordLabel">Re-enter Password</span> <span class="req">*</span></span>
               <div class="input-icon">
                 <svg class="ico" aria-hidden="true"><use href="#icon-check"/></svg>
-                <input type="password" id="su-pass2" required/>
+                <input type="password" id="su-pass2" required data-i18n-placeholder="signup.confirmPasswordPlaceholder"/>
               </div>
             </label>
           </div>
 
-          <button type="submit" class="btn primary" id="signup-submit">Create account</button>
+          <button type="submit" class="btn primary" id="signup-submit" data-i18n="signup.submit">Create account</button>
         </form>
       </div>
     </section>
@@ -276,20 +283,20 @@
     <section id="patient-page" class="card hidden">
       <div class="doc-welcome patient-welcome">
         <div>
-          <span class="eyebrow">Patient workspace</span>
-          <h3 id="pt-welcome-title">Welcome back</h3>
-          <p id="pt-welcome-subtitle" class="muted">Stay connected with your care team.</p>
+          <span class="eyebrow" data-i18n="patient.eyebrow">Patient workspace</span>
+          <h3 id="pt-welcome-title" data-i18n="patient.welcomeTitle">Welcome back</h3>
+          <p id="pt-welcome-subtitle" class="muted" data-i18n="patient.welcomeSubtitle">Stay connected with your care team.</p>
         </div>
         <div class="doc-header-actions pt-header-actions">
-          <button id="pt-change-password" class="btn secondary small">Change password</button>
-          <button id="logout-pt" class="btn danger small">Logout</button>
+          <button id="pt-change-password" class="btn secondary small" data-i18n="patient.changePassword">Change password</button>
+          <button id="logout-pt" class="btn danger small" data-i18n="patient.logout">Logout</button>
         </div>
       </div>
 
       <div class="doc-summary patient-summary">
         <div id="pt-details" class="details doc-details"></div>
         <div class="details patient-history-card">
-          <h4>Medical History / Treatment</h4>
+          <h4 data-i18n="patient.historyHeading">Medical History / Treatment</h4>
           <div id="pt-history" class="history-readonly"></div>
         </div>
       </div>
@@ -297,48 +304,48 @@
       <div class="patient-main">
         <section class="patient-timeline">
           <div id="pt-next-appointment" class="next-appointment-banner hidden" role="status" aria-live="polite"></div>
-          <h4>Care Conversation</h4>
+          <h4 data-i18n="patient.careHeading">Care Conversation</h4>
           <div id="pt-timeline" class="timeline"></div>
           <form id="pt-feedback-form" class="chat-composer patient-chat-composer">
             <input type="file" id="pt-feedback-file" accept="image/*" class="sr-only" aria-hidden="true"/>
             <div class="chat-attach-group">
-              <button type="button" id="pt-feedback-attach" class="chat-attach-btn" aria-label="Upload a photo" title="Attach a photo to your update">
+              <button type="button" id="pt-feedback-attach" class="chat-attach-btn" aria-label="Upload a photo" title="Attach a photo to your update" data-i18n-aria-label="patient.chatAttachAria" data-i18n-title="patient.chatAttachTitle">
                 <svg class="ico" aria-hidden="true"><use href="#icon-plus"/></svg>
               </button>
-              <span class="microcopy">Add photo</span>
+              <span class="microcopy" data-i18n="patient.chatAddPhoto">Add photo</span>
               <span id="pt-feedback-file-label" class="chat-attach-label hidden" aria-live="polite"></span>
-              <button type="button" id="pt-feedback-clear" class="chat-attach-clear hidden" aria-label="Remove selected photo" title="Clear attached photo">
+              <button type="button" id="pt-feedback-clear" class="chat-attach-clear hidden" aria-label="Remove selected photo" title="Clear attached photo" data-i18n-aria-label="patient.chatClearAria" data-i18n-title="patient.chatClearTitle">
                 <svg class="ico" aria-hidden="true"><use href="#icon-x"/></svg>
               </button>
             </div>
-            <textarea id="pt-feedback-text" rows="2" placeholder="Share an update or ask a question..." aria-label="Message your care team"></textarea>
+            <textarea id="pt-feedback-text" rows="2" placeholder="Share an update or ask a question..." aria-label="Message your care team" data-i18n-placeholder="patient.chatPlaceholder" data-i18n-aria-label="patient.chatAriaLabel"></textarea>
             <div class="composer-actions">
-              <button type="submit" id="pt-feedback-send" class="btn primary small" title="Send your update">Send</button>
+              <button type="submit" id="pt-feedback-send" class="btn primary small" title="Send your update" data-i18n="patient.chatSendLabel" data-i18n-title="patient.chatSendTitle">Send</button>
             </div>
           </form>
-          <h4>Scheduled Appointments</h4>
+          <h4 data-i18n="patient.appointmentsHeading">Scheduled Appointments</h4>
           <div id="pt-appointments" class="timeline"></div>
         </section>
         <section class="patient-support">
-          <h4>Care Support</h4>
+          <h4 data-i18n="patient.support.heading">Care Support</h4>
           <div class="support-grid">
             <article class="support-card">
-              <h5>Before your visit</h5>
+              <h5 data-i18n="patient.support.beforeHeading">Before your visit</h5>
               <ul>
-                <li>Note symptom changes and medication updates.</li>
-                <li>Photograph healing progress to share with your doctor.</li>
+                <li data-i18n="patient.support.beforeItem1">Note symptom changes and medication updates.</li>
+                <li data-i18n="patient.support.beforeItem2">Photograph healing progress to share with your doctor.</li>
               </ul>
             </article>
             <article class="support-card">
-              <h5>Emergency?</h5>
-              <p class="muted small">In case of an emergency, please call your assigned doctor immediately.</p>
+              <h5 data-i18n="patient.support.emergencyHeading">Emergency?</h5>
+              <p class="muted small" data-i18n="patient.support.emergencyCopy">In case of an emergency, please call your assigned doctor immediately.</p>
             </article>
             <article class="support-card">
-              <h5>Resources</h5>
+              <h5 data-i18n="patient.support.resourcesHeading">Resources</h5>
               <ul>
-                <li><a href="#resource-post-op" class="text-link" id="patient-link-post-op">Post-operative care checklist</a></li>
-                <li><a href="#resource-pain" class="text-link" id="patient-link-pain">Pain management tips</a></li>
-                <li><a href="#resource-emergency" class="text-link" id="patient-link-emergency">Emergency guidance</a></li>
+                <li><a href="#resource-post-op" class="text-link" id="patient-link-post-op" data-i18n="patient.support.resourcePostOp">Post-operative care checklist</a></li>
+                <li><a href="#resource-pain" class="text-link" id="patient-link-pain" data-i18n="patient.support.resourcePain">Pain management tips</a></li>
+                <li><a href="#resource-emergency" class="text-link" id="patient-link-emergency" data-i18n="patient.support.resourceEmergency">Emergency guidance</a></li>
               </ul>
             </article>
           </div>
@@ -397,85 +404,100 @@
 <section id="about" class="card hidden">
   <div class="about-grid">
     <div class="about-copy">
-      <span class="eyebrow">Why ClinConnect</span>
-      <h3>Care continuity designed for specialists</h3>
-      <p>ClinConnect is a platform of the Oral &amp; Maxillofacial Surgery team at <strong>PGIMER, Chandigarh</strong> to give doctors and patients a structured, secure channel for long-term follow-up care.</p>
+      <span class="eyebrow" data-i18n="about.eyebrow">Why OMFS, PGIMER</span>
+      <h3 data-i18n="about.heading">Care continuity designed for specialists</h3>
+      <p data-i18n-html="about.lead">OMFS, PGIMER is the follow-up program of the Oral &amp; Maxillofacial Surgery team at <strong>PGIMER, Chandigarh</strong>, offering doctors and patients a structured, secure channel for long-term care.</p>
       <div class="about-highlights">
         <article class="about-card">
-          <h4>Specialist workflow ready</h4>
-          <p>Role-based dashboards keep treatment timelines, feedback, and clinical notes aligned for every follow-up visit.</p>
+          <h4 data-i18n="about.card1.title">Specialist workflow ready</h4>
+          <p data-i18n="about.card1.body">Role-based dashboards keep treatment timelines, feedback, and clinical notes aligned for every follow-up visit.</p>
         </article>
         <article class="about-card">
-          <h4>Secure, cloud-native foundation</h4>
-          <p>Built on Supabase authentication, row-level security rules, and encrypted storage so teams can scale with confidence.</p>
+          <h4 data-i18n="about.card2.title">Secure, cloud-native foundation</h4>
+          <p data-i18n="about.card2.body">Built on Supabase authentication, row-level security rules, and encrypted storage so teams can scale with confidence.</p>
         </article>
         <article class="about-card">
-          <h4>Patient-first communication</h4>
-          <p>Patients share status updates, history, and visuals, while doctors respond with structured guidance in one timeline.</p>
+          <h4 data-i18n="about.card3.title">Patient-first communication</h4>
+          <p data-i18n="about.card3.body">Patients share status updates, history, and visuals, while doctors respond with structured guidance in one timeline.</p>
         </article>
       </div>
       <div class="about-metrics">
         <div class="about-metric">
-          <span class="metric-value">Real-time</span>
-          <span class="metric-label">Data sync and file sharing without redeployments.</span>
+          <span class="metric-value" data-i18n="about.metric1.value">Real-time</span>
+          <span class="metric-label" data-i18n="about.metric1.label">Data sync and file sharing without redeployments.</span>
         </div>
         <div class="about-metric">
-          <span class="metric-value">AI-ready</span>
-          <span class="metric-label">Planned multilingual virtual assistant for patients &amp; clinicians.</span>
+          <span class="metric-value" data-i18n="about.metric2.value">AI-ready</span>
+          <span class="metric-label" data-i18n="about.metric2.label">Planned multilingual virtual assistant for patients &amp; clinicians.</span>
         </div>
       </div>
       <div class="about-actions">
-        <a href="#auth-section" class="btn primary" id="about-login">Login</a>
-        <a href="#hero-section" class="btn ghost">Back to overview</a>
+        <a href="#auth-section" class="btn primary" id="about-login" data-i18n="about.loginCta">Login</a>
+        <a href="#hero-section" class="btn ghost" data-i18n="about.backCta">Back to overview</a>
       </div>
     </div>
     <div class="about-visual">
-      <img src="assets/images/about-clinconnect.svg" alt="ClinConnect collaboration flow diagram"/>
+      <img src="assets/images/about-clinconnect.svg" alt="OMFS, PGIMER collaboration flow diagram"/>
     </div>
   </div>
 </section>
 
 <section id="resources" class="card hidden">
   <div class="resources-header">
-    <span class="eyebrow">Resource Library</span>
-    <h3>Expert guidance for every stage of recovery</h3>
-    <p class="muted">Share these articles with patients and colleagues to keep everyone aligned on expectations and escalation steps.</p>
+    <span class="eyebrow" data-i18n="resources.eyebrow">Resource Library</span>
+    <h3 data-i18n="resources.heading">Expert guidance for every stage of recovery</h3>
+    <p class="muted" data-i18n="resources.lead">Share these articles with patients and colleagues to keep everyone aligned on expectations and escalation steps.</p>
   </div>
   <div class="resources-grid">
     <article class="resource-article" id="resource-post-op">
-      <h4>Post-operative care checklist</h4>
-      <p>Ensure every patient leaves with clear instructions covering hygiene, diet, activity, and warning signs. Use this checklist to reinforce discharge conversations.</p>
+      <h4 data-i18n="resources.postOp.title">Post-operative care checklist</h4>
+      <p data-i18n="resources.postOp.body">Ensure every patient leaves with clear instructions covering hygiene, diet, activity, and warning signs. Use this checklist to reinforce discharge conversations.</p>
       <ol>
-        <li>Protect the surgical site: gentle rinses, no straws, no smoking.</li>
-        <li>Nutrition plan: soft foods, hydration goals, supplements if prescribed.</li>
-        <li>Medication schedule: antibiotics, anti-inflammatories, analgesics, and when to escalate.</li>
-        <li>Daily photo log: request before/after images to track healing progress.</li>
-        <li>Follow-up reminder: confirm next appointment and provide contact contingency.</li>
+        <li data-i18n="resources.postOp.item1">Protect the surgical site: gentle rinses, no straws, no smoking.</li>
+        <li data-i18n="resources.postOp.item2">Nutrition plan: soft foods, hydration goals, supplements if prescribed.</li>
+        <li data-i18n="resources.postOp.item3">Medication schedule: antibiotics, anti-inflammatories, analgesics, and when to escalate.</li>
+        <li data-i18n="resources.postOp.item4">Daily photo log: request before/after images to track healing progress.</li>
+        <li data-i18n="resources.postOp.item5">Follow-up reminder: confirm next appointment and provide contact contingency.</li>
       </ol>
     </article>
     <article class="resource-article" id="resource-pain">
-      <h4>Pain management tips</h4>
-      <p>Help patients differentiate expected soreness from complications and understand how to use their prescriptions responsibly.</p>
+      <h4 data-i18n="resources.pain.title">Pain management tips</h4>
+      <p data-i18n="resources.pain.body">Help patients differentiate expected soreness from complications and understand how to use their prescriptions responsibly.</p>
       <ul>
-        <li><strong>Baseline discomfort:</strong> educate that throbbing in first 48 hours is typical; ice alternating with rest helps.</li>
-        <li><strong>Medication spacing:</strong> stagger NSAIDs and prescribed analgesics to maintain consistent coverage.</li>
-        <li><strong>Adjunct support:</strong> highlight sleep, hydration, and mindfulness techniques to reduce stress-driven pain.</li>
-        <li><strong>Red flags:</strong> uncontrolled pain beyond 72 hours, sudden spikes, or medication intolerance requires immediate outreach.</li>
-        <li><strong>Documentation:</strong> encourage patients to log doses and pain scores to share during reviews.</li>
+        <li>
+          <strong data-i18n="resources.pain.item1Lead">Baseline discomfort:</strong>
+          <span data-i18n="resources.pain.item1Body">educate that throbbing in first 48 hours is typical; ice alternating with rest helps.</span>
+        </li>
+        <li>
+          <strong data-i18n="resources.pain.item2Lead">Medication spacing:</strong>
+          <span data-i18n="resources.pain.item2Body">stagger NSAIDs and prescribed analgesics to maintain consistent coverage.</span>
+        </li>
+        <li>
+          <strong data-i18n="resources.pain.item3Lead">Adjunct support:</strong>
+          <span data-i18n="resources.pain.item3Body">highlight sleep, hydration, and mindfulness techniques to reduce stress-driven pain.</span>
+        </li>
+        <li>
+          <strong data-i18n="resources.pain.item4Lead">Red flags:</strong>
+          <span data-i18n="resources.pain.item4Body">uncontrolled pain beyond 72 hours, sudden spikes, or medication intolerance requires immediate outreach.</span>
+        </li>
+        <li>
+          <strong data-i18n="resources.pain.item5Lead">Documentation:</strong>
+          <span data-i18n="resources.pain.item5Body">encourage patients to log doses and pain scores to share during reviews.</span>
+        </li>
       </ul>
     </article>
     <article class="resource-article" id="resource-emergency">
-      <h4>Emergency guidance</h4>
-      <p>Define when patients should bypass asynchronous updates and call the care team or emergency services.</p>
+      <h4 data-i18n="resources.emergency.title">Emergency guidance</h4>
+      <p data-i18n="resources.emergency.body">Define when patients should bypass asynchronous updates and call the care team or emergency services.</p>
       <div class="emergency-panel">
-        <h5>Contact the clinic immediately if:</h5>
+        <h5 data-i18n="resources.emergency.panelHeading">Contact the clinic immediately if:</h5>
         <ul>
-          <li>Bleeding persists longer than 20 minutes despite pressure.</li>
-          <li>Facial swelling doubles in size overnight or obstructs breathing.</li>
-          <li>Fever exceeds 101°F (38.3°C) or chills accompany incision changes.</li>
-          <li>Neurological symptoms emerge: numbness, vision changes, difficulty speaking.</li>
+          <li data-i18n="resources.emergency.item1">Bleeding persists longer than 20 minutes despite pressure.</li>
+          <li data-i18n="resources.emergency.item2">Facial swelling doubles in size overnight or obstructs breathing.</li>
+          <li data-i18n="resources.emergency.item3">Fever exceeds 101°F (38.3°C) or chills accompany incision changes.</li>
+          <li data-i18n="resources.emergency.item4">Neurological symptoms emerge: numbness, vision changes, difficulty speaking.</li>
         </ul>
-        <p class="muted small">In life-threatening scenarios (airway compromise, loss of consciousness), call local emergency services first before contacting the clinic.</p>
+        <p class="muted small" data-i18n="resources.emergency.footer">In life-threatening scenarios (airway compromise, loss of consciousness), call local emergency services first before contacting the clinic.</p>
       </div>
     </article>
   </div>
@@ -484,12 +506,16 @@
   </main>
   <footer class="site-footer">
     <div class="container">
-      <small>© <span id="year"></span> ClinConnect · Navavidha Kale and Pulkit Joshi</small>
+      <small>© <span id="year"></span> OMFS, PGIMER · Navavidha Kale and Pulkit Joshi</small>
     </div>
   </footer>
 
   <!-- Config with your Supabase keys (edit js/config.js) -->
   <script src="js/config.js"></script>
+  <!-- Language packs -->
+  <script src="js/lang/main_en.js"></script>
+  <script src="js/lang/main_hi.js"></script>
+  <script src="js/lang/main_pa.js"></script>
   <!-- App -->
   <script type="module" src="js/main.js"></script>
 </body>

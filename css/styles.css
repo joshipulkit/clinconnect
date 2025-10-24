@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ClinConnect — Professional theme */
+/* OMFS PGIMER — Professional theme */
 :root{
   --transition-speed:.25s;
 }
@@ -114,9 +114,17 @@ a:hover{text-decoration:underline}
 .nav a{color:var(--muted);text-decoration:none;margin-left:12px;padding:10px 14px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all var(--transition-speed) ease}
 .nav a.active,.nav a:hover{color:var(--primary-contrast);background:var(--primary);box-shadow:0 8px 18px rgba(52,111,230,.25)}
 
+.header-actions{display:flex;align-items:center;gap:12px}
 .theme-toggle{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--button-border);background:var(--button-bg);color:var(--button-text);border-radius:999px;padding:9px 12px;cursor:pointer;box-shadow:var(--button-shadow);transition:all var(--transition-speed) ease}
 .theme-toggle:hover{border-color:var(--primary);color:var(--primary)}
 .theme-toggle .theme-icon{width:18px;height:18px}
+
+.language-toggle{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--button-border);border-radius:999px;padding:4px;background:var(--button-bg);box-shadow:var(--button-shadow);transition:border-color var(--transition-speed) ease, color var(--transition-speed) ease}
+.language-toggle:focus-within{border-color:var(--primary)}
+.lang-btn{border:0;background:transparent;color:var(--muted);padding:6px 10px;border-radius:999px;font-weight:600;cursor:pointer;transition:all var(--transition-speed) ease;min-width:48px;text-align:center}
+.lang-btn:hover{color:var(--primary)}
+.lang-btn.active{background:var(--primary);color:var(--primary-contrast);box-shadow:0 6px 16px rgba(52,111,230,.2)}
+.lang-btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
 .menu-btn{display:none;border:1px solid var(--button-border);background:var(--button-bg);color:var(--button-text);border-radius:10px;padding:10px 12px;align-items:center;justify-content:center;gap:6px;box-shadow:var(--button-shadow);transition:all var(--transition-speed) ease}
 .menu-btn .ico{width:20px;height:20px}
@@ -425,4 +433,7 @@ select:disabled{--select-indicator:color-mix(in srgb,var(--muted) 60%, transpare
   .nav a{display:block;margin:0;padding:8px 10px}
   .nav.open{display:block}
   .hide-sm{display:none}
+  .header-actions{gap:8px}
+  .language-toggle{padding:4px 2px}
+  .lang-btn{min-width:40px;padding:6px 8px;font-size:13px}
 }

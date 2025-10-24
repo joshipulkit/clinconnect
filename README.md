@@ -1,4 +1,4 @@
-# ClinConnect — GitHub Pages + Supabase Auth (final)
+# OMFS, PGIMER Follow-up Portal — GitHub Pages + Supabase Auth
 
 This build uses **Supabase Auth (email/password)** and Supabase DB/Storage. It’s fully static, so it runs perfectly on **GitHub Pages** and updates live via API—no redeploys needed.
 
@@ -46,7 +46,7 @@ Main/
 ### 5) Configure the frontend
 - Open `js/config.js` and set:
   ```js
-  window.CLINCONNECT_SUPABASE = {
+  window.OMFS_PGIMER_SUPABASE = {
     SUPABASE_URL: "https://YOUR-PROJECT.ref.supabase.co",
     SUPABASE_ANON_KEY: "YOUR-ANON-PUBLIC-KEY"
   };

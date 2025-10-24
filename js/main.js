@@ -2004,3 +2004,7 @@ function filterMessagesForDisplay(messages){
     return true;
   });
 }
+
+
+// expose translate helper for new modules
+if (typeof translate === 'function'){ window.translate = translate; }

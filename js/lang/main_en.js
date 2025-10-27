@@ -25,6 +25,7 @@
     'login.identifierPlaceholder': 'e.g. P12345 or EMP456 or user@example.com',
     'login.passwordLabel': 'Password',
     'login.passwordPlaceholder': 'Enter password',
+    'login.rememberLabel': 'Stay logged in on this device',
     'login.submit': 'Login',
     'signup.categoryLabel': 'Category',
     'signup.categoryOption.select': 'Select',
@@ -168,6 +169,7 @@
     'patient.checkin.title': "Today\u2019s check-in",
     'patient.checkin.lead': "Takes 2\u20133 minutes. Your answers help your doctor.",
     'patient.checkin.cta': "Start check-in",
+    'patient.photos.empty': "No photos yet",
     'patient.photos.title': "Healing photos",
     'patient.photos.lead': "Capture standardized views with on-screen guides.",
     'patient.photos.cta': "Add photo",
@@ -187,6 +189,7 @@
     'checkin.cancel': "Cancel",
     'checkin.submit': "Submit",
     'checkin.status.sent': "Submitted",
-    'checkin.status.queued': "Saved offline; will send when online"
+    'checkin.status.queued': "Saved offline; will send when online",
+    'checkin.error.authRequired': "Please sign in to submit a check-in."
   };
 })();

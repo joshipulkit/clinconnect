@@ -1,5 +1,5 @@
 
-// pwa.js: high-contrast mode, text-size, offline queue
+// pwa.js: offline queue + basic connectivity helpers
 (function(){
   const root = document.documentElement;
   const settingsKey = 'cc_settings';
@@ -11,32 +11,16 @@
   function saveSettings(s){ localStorage.setItem(settingsKey, JSON.stringify(s)); }
   function applySettings(){
     const s = loadSettings();
-    root.dataset.contrast = s.highContrast ? 'high' : 'normal';
-    root.style.setProperty('--base-font-scale', (s.fontScale || 1).toString());
-  }
-
-  function addSettingsUI(){
-    const bar = document.createElement('div');
-    bar.className = 'uxbar';
-    bar.innerHTML = `
-      <button class="btn tiny" id="toggle-contrast" aria-pressed="false">A11y</button>
-      <button class="btn tiny" id="increase-text" aria-label="Increase text size">A+</button>
-      <button class="btn tiny" id="decrease-text" aria-label="Decrease text size">A-</button>
-    `;
-    document.body.appendChild(bar);
-    const s = loadSettings();
-    const toggle = bar.querySelector('#toggle-contrast');
-    toggle.setAttribute('aria-pressed', !!s.highContrast);
-    toggle.addEventListener('click', ()=>{
-      const s = loadSettings(); s.highContrast = !s.highContrast; saveSettings(s); applySettings();
-      toggle.setAttribute('aria-pressed', s.highContrast);
-    });
-    bar.querySelector('#increase-text').addEventListener('click', ()=>{
-      const s = loadSettings(); s.fontScale = Math.min(1.6, (s.fontScale||1)+0.1); saveSettings(s); applySettings();
-    });
-    bar.querySelector('#decrease-text').addEventListener('click', ()=>{
-      const s = loadSettings(); s.fontScale = Math.max(0.9, (s.fontScale||1)-0.1); saveSettings(s); applySettings();
-    });
+    if (s.highContrast){
+      delete s.highContrast;
+      saveSettings(s);
+    }
+    if (s.fontScale && s.fontScale !== 1){
+      delete s.fontScale;
+      saveSettings(s);
+    }
+    if (root.dataset.contrast){ delete root.dataset.contrast; }
+    root.style.setProperty('--base-font-scale','1');
   }
 
   // Offline queue helpers
@@ -52,20 +36,36 @@
     }
     setQueue(remain);
   }
+  function flushQueueIfReady(){
+    if (window.CC_Checkins && typeof window.CC_Checkins.sendPayload === 'function'){
+      replayQueue(window.CC_Checkins.sendPayload);
+    }
+  }
   // Expose a small API
   window.CC_PWA = {
-    enqueue: (payload)=>{ const q=getQueue(); q.push(payload); setQueue(q); },
+    enqueue: (payload)=>{
+      const q = getQueue();
+      q.push(payload);
+      if (q.length > 10){ q.shift(); }
+      setQueue(q);
+    },
     replayQueue
   };
 
   window.addEventListener('online', ()=>{
     document.body.classList.remove('offline');
-    if (window.CC_Checkins && window.CC_Checkins.sendPayload){
-      replayQueue(window.CC_Checkins.sendPayload);
-    }
+    flushQueueIfReady();
   });
   window.addEventListener('offline', ()=> document.body.classList.add('offline'));
 
   applySettings();
-  addSettingsUI();
+  if (!navigator.onLine){
+    document.body.classList.add('offline');
+  } else {
+    if (document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', flushQueueIfReady, { once:true });
+    } else {
+      flushQueueIfReady();
+    }
+  }
 })();

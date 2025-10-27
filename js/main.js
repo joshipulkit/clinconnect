@@ -10,8 +10,10 @@ const THEME_STORAGE_KEY = 'omfs-pgimer-theme';
 const LANG_STORAGE_KEY = 'omfs-pgimer-language';
 const SUPPORTED_LANGUAGES = ['en','hi','pa'];
 let currentLanguage = 'en';
-let sitePathPrefixSegments = [];
-let sitePathSuffixSegments = [];
+let basePathname = window.location.pathname;
+const REMEMBER_ME_KEY = 'omfs-pgimer-remember';
+const EPHEMERAL_SESSION_KEY = 'omfs-pgimer-ephemeral';
+let ephemeralSession = false;
 const COUNTRY_CODES = [
   { name: 'Afghanistan', dial_code: '93', iso2: 'AF' },
   { name: 'Albania', dial_code: '355', iso2: 'AL' },
@@ -312,6 +314,13 @@ function applyLanguage(lang){
     const html = translate(key);
     if (html){ node.innerHTML = html; }
   });
+  document.querySelectorAll('[data-i18n-attr][data-i18n-attr-name]').forEach((node)=>{
+    const key = node.dataset.i18nAttr;
+    const attrName = node.dataset.i18nAttrName;
+    if (!attrName){ return; }
+    const text = translate(key);
+    if (text){ node.setAttribute(attrName, text); }
+  });
 
   document.querySelectorAll('#language-toggle .lang-btn').forEach((btn)=>{
     const isActive = btn.dataset.lang === currentLanguage;
@@ -329,55 +338,71 @@ function applyLanguage(lang){
   }
 }
 
-function pathSegments(){
-  return window.location.pathname.split('/').filter(Boolean);
+function normalizeBasePathFromSegments(segments){
+  if (!segments || !segments.length){ return '/'; }
+  return `/${segments.join('/')}`;
 }
 
-function detectLanguageFromPath(){
-  const segments = pathSegments();
-  const idx = segments.findIndex((seg)=> SUPPORTED_LANGUAGES.includes(seg.toLowerCase()));
-  let lang = 'en';
-  let found = false;
-  let prefix = segments.slice();
-  let suffix = [];
-  if (idx !== -1){
-    lang = segments[idx].toLowerCase();
-    prefix = segments.slice(0, idx);
-    suffix = segments.slice(idx + 1);
-    found = true;
-  } else if (prefix.length && prefix[prefix.length - 1].includes('.')){
-    prefix = prefix.slice(0, -1);
+function detectLanguageFromLocation(){
+  const params = new URLSearchParams(window.location.search);
+  const paramLang = params.get('lang');
+  const segments = window.location.pathname.split('/').filter(Boolean);
+  if (paramLang){
+    basePathname = normalizeBasePathFromSegments(segments);
+    return {
+      lang: normalizeLanguage(paramLang),
+      found: true,
+      viaQuery: true
+    };
   }
+  const idx = segments.findIndex((seg)=> SUPPORTED_LANGUAGES.includes(seg.toLowerCase()));
+  if (idx !== -1){
+    const langSegment = segments[idx];
+    segments.splice(idx, 1);
+    basePathname = normalizeBasePathFromSegments(segments);
+    return {
+      lang: normalizeLanguage(langSegment),
+      found: true,
+      viaQuery: false
+    };
+  }
+  basePathname = normalizeBasePathFromSegments(segments);
   return {
-    lang: normalizeLanguage(lang),
-    prefixSegments: prefix,
-    suffixSegments: suffix,
-    found
+    lang: 'en',
+    found: false,
+    viaQuery: false
   };
 }
 
-function buildPathForLanguage(lang){
-  const parts = [...sitePathPrefixSegments];
-  if (lang){ parts.push(lang); }
-  if (sitePathSuffixSegments.length){ parts.push(...sitePathSuffixSegments); }
-  const joined = parts.join('/');
-  return joined ? `/${joined}` : '/';
+function clearPersistedAuthTokens(){
+  try{
+    if (typeof localStorage === 'undefined'){ return; }
+    const keys = Object.keys(localStorage);
+    for (const key of keys){
+      if (key.startsWith('sb-') && key.includes('-auth-token')){
+        localStorage.removeItem(key);
+      }
+    }
+  } catch(_e){}
 }
 
 function setLanguage(lang, { updateUrl = true, replace = false } = {}){
   const normalized = normalizeLanguage(lang);
   if (updateUrl){
-    const newPath = buildPathForLanguage(normalized);
-    const newUrl = `${newPath}${window.location.search}${window.location.hash}`;
+    const url = new URL(window.location.href);
+    url.pathname = basePathname || '/';
+    if (normalized === 'en'){
+      url.searchParams.delete('lang');
+    } else {
+      url.searchParams.set('lang', normalized);
+    }
+    const newUrl = `${url.pathname}${url.search}${url.hash}`;
     const stateData = { lang: normalized };
     if (replace){
       window.history.replaceState(stateData, '', newUrl);
     } else {
       window.history.pushState(stateData, '', newUrl);
     }
-    const info = detectLanguageFromPath();
-    sitePathPrefixSegments = info.prefixSegments;
-    sitePathSuffixSegments = info.suffixSegments;
   }
   applyLanguage(normalized);
 }
@@ -919,9 +944,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (yearEl){ yearEl.textContent = String(new Date().getFullYear()); }
   populatePhoneCountrySelect();
 
-  const detected = detectLanguageFromPath();
-  sitePathPrefixSegments = detected.prefixSegments;
-  sitePathSuffixSegments = detected.suffixSegments;
+  const rememberCheckbox = document.getElementById('login-remember');
+  try{
+    ephemeralSession = sessionStorage.getItem(EPHEMERAL_SESSION_KEY) === '1';
+  } catch(_e){
+    ephemeralSession = false;
+  }
+  if (rememberCheckbox){
+    let rememberPref = false;
+    try{
+      rememberPref = localStorage.getItem(REMEMBER_ME_KEY) === '1';
+    } catch(_e){}
+    if (ephemeralSession){ rememberPref = false; }
+    rememberCheckbox.checked = rememberPref;
+  }
+  if (ephemeralSession){ clearPersistedAuthTokens(); }
+
+  const detected = detectLanguageFromLocation();
   let initialLanguage = detected.lang;
   if (!detected.found){
     try{
@@ -929,7 +968,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (SUPPORTED_LANGUAGES.includes(storedLang)){ initialLanguage = storedLang; }
     } catch(_e){}
   }
-  setLanguage(initialLanguage, { updateUrl: !detected.found || detected.lang !== initialLanguage, replace: true });
+  const shouldRewrite = detected.found && !detected.viaQuery;
+  const shouldPersistPreference = !detected.found && initialLanguage !== 'en';
+  setLanguage(initialLanguage, { updateUrl: shouldRewrite || shouldPersistPreference, replace: true });
   document.querySelectorAll('#language-toggle .lang-btn').forEach((btn)=>{
     btn.addEventListener('click', ()=>{
       const requested = normalizeLanguage(btn.dataset.lang || 'en');
@@ -938,10 +979,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
   window.addEventListener('popstate', ()=>{
-    const info = detectLanguageFromPath();
-    sitePathPrefixSegments = info.prefixSegments;
-    sitePathSuffixSegments = info.suffixSegments;
-    applyLanguage(info.lang);
+    const info = detectLanguageFromLocation();
+    if (info.found && !info.viaQuery){
+      setLanguage(info.lang, { updateUrl: true, replace: true });
+    } else {
+      applyLanguage(info.lang);
+    }
   });
 
     // Theme
@@ -970,6 +1013,78 @@ document.addEventListener('DOMContentLoaded', async () => {
       prefersDark.addListener(syncThemeToSystem);
     }
   }
+
+  // Notifications entry points
+  const NOTIFICATIONS_HIGHLIGHT_CLASS = 'notifications-highlight';
+  const notificationContexts = Array.from(document.querySelectorAll('[data-notifications-context]')).reduce((acc, panel)=>{
+    const key = panel.dataset.notificationsContext || `context-${Object.keys(acc).length + 1}`;
+    acc[key] = {
+      panel,
+      enableButton: panel.querySelector('[data-role="enable"]'),
+      markReadButton: panel.querySelector('[data-role="mark-read"]'),
+      list: panel.querySelector('[data-role="list"]'),
+      empty: panel.querySelector('[data-role="empty"]')
+    };
+    return acc;
+  }, {});
+  const fallbackNotificationsKey = Object.keys(notificationContexts)[0] || null;
+  const resolveNotificationsContext = (key)=>{
+    if (key && notificationContexts[key]){ return notificationContexts[key]; }
+    return fallbackNotificationsKey ? notificationContexts[fallbackNotificationsKey] : undefined;
+  };
+
+  const openNotificationsPanel = (contextKey)=>{
+    const target = resolveNotificationsContext(contextKey);
+    if (!target){ return; }
+    target.panel.scrollIntoView({ behavior:'smooth', block:'start' });
+    target.panel.classList.add(NOTIFICATIONS_HIGHLIGHT_CLASS);
+    window.setTimeout(()=> target.panel.classList.remove(NOTIFICATIONS_HIGHLIGHT_CLASS), 1500);
+  };
+
+  document.querySelectorAll('[data-open-notifications]').forEach((btn)=>{
+    const contextKey = btn.dataset.openNotifications;
+    btn.addEventListener('click', (event)=>{
+      event.preventDefault();
+      openNotificationsPanel(contextKey);
+    });
+  });
+
+  Object.entries(notificationContexts).forEach(([contextKey, ui])=>{
+    ui.enableButton?.addEventListener('click', async ()=>{
+      if (!('Notification' in window)){
+        alert('Push notifications are not supported on this device.');
+        return;
+      }
+      let permission = Notification.permission;
+      if (permission === 'default'){
+        try{
+          permission = await Notification.requestPermission();
+        } catch(err){
+          console.error('Notification permission request failed', err);
+          permission = 'denied';
+        }
+      }
+      if (permission !== 'granted'){
+        alert('Enable notifications in your browser settings to receive alerts from the clinic.');
+        return;
+      }
+      window.dispatchEvent(new CustomEvent('cc:push:register'));
+      openNotificationsPanel(contextKey);
+    });
+
+    ui.markReadButton?.addEventListener('click', ()=>{
+      ui.list?.querySelectorAll('.notifications-item.unread').forEach((item)=> item.classList.remove('unread'));
+      if (ui.list && ui.list.children.length === 0 && ui.empty){
+        ui.empty.classList.remove('hidden');
+      }
+    });
+  });
+
+  if (!window.CC_Notifications){
+    window.CC_Notifications = {};
+  }
+  window.CC_Notifications.contexts = notificationContexts;
+  window.CC_Notifications.highlight = openNotificationsPanel;
 
 
   // Tabs
@@ -1147,8 +1262,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { data: { user } } = await supabase.auth.getUser();
     await hydrateUserAndRoute(user.id);
   }
-  supabase.auth.onAuthStateChange(async (_event, session) => {
+  supabase.auth.onAuthStateChange(async (event, session) => {
     state.session = session;
+    if (event === 'SIGNED_IN'){
+      let ephemeralFlag = false;
+      try{
+        ephemeralFlag = sessionStorage.getItem(EPHEMERAL_SESSION_KEY) === '1';
+      } catch(_e){
+        ephemeralFlag = false;
+      }
+      ephemeralSession = ephemeralFlag;
+      if (ephemeralFlag){ clearPersistedAuthTokens(); }
+    }
+    if (event === 'SIGNED_OUT'){
+      ephemeralSession = false;
+      try{ sessionStorage.removeItem(EPHEMERAL_SESSION_KEY); } catch(_e){}
+      clearPersistedAuthTokens();
+    }
   });
 });
 
@@ -1315,6 +1445,7 @@ async function handleLogin(e){
   e.preventDefault();
   const rawIdentifier = (document.getElementById('login-identifier').value || '').trim();
   const pass = document.getElementById('login-password').value;
+  const remember = !!document.getElementById('login-remember')?.checked;
   if (!rawIdentifier){ alert('Enter your patient ID, employee ID, or email.'); return; }
   if (!pass){ alert('Enter your password.'); return; }
   let email = null;
@@ -1327,6 +1458,19 @@ async function handleLogin(e){
   }
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
   if (error){ console.error(error); alert('Login failed.'); return; }
+  if (!data?.user){ alert('Login failed.'); return; }
+  try{
+    if (remember){
+      localStorage.setItem(REMEMBER_ME_KEY, '1');
+      sessionStorage.removeItem(EPHEMERAL_SESSION_KEY);
+      ephemeralSession = false;
+    } else {
+      localStorage.setItem(REMEMBER_ME_KEY, '0');
+      sessionStorage.setItem(EPHEMERAL_SESSION_KEY, '1');
+      ephemeralSession = true;
+      clearPersistedAuthTokens();
+    }
+  } catch(_e){}
   await hydrateUserAndRoute(data.user.id);
 }
 
@@ -1401,10 +1545,18 @@ function refreshDoctorLanguage(){
 // PATIENT PAGE
 async function showPatientPage(me){
   showOnly('#patient-page');
+  if (window.CC_Checkins && typeof window.CC_Checkins.setContext === 'function'){
+    window.CC_Checkins.setContext({ userId: me.id, doctorEmployeeId: me.assigned_doctor_employee_id || null });
+  }
   state.patientAppointments = [];
   state.patientMessages = [];
   state.patientHistory = '';
   state.patientComposer = null;
+
+  const statusNode = document.getElementById('checkin-status');
+  if (statusNode){ statusNode.textContent = ''; }
+  const photoStrip = document.getElementById('photo-strip');
+  if (photoStrip){ photoStrip.innerHTML = ''; }
 
   const name = (me.fullname || '').trim();
   const welcomeTitle = document.getElementById('pt-welcome-title');
@@ -1532,6 +1684,9 @@ async function showPatientPage(me){
   });
 
   document.getElementById('logout-pt').onclick = async () => {
+    if (window.CC_Checkins && typeof window.CC_Checkins.setContext === 'function'){
+      window.CC_Checkins.setContext(null);
+    }
     await supabase.auth.signOut();
     state.me = null;
     state.patientAppointments = [];
@@ -1582,6 +1737,9 @@ async function renderPatientTimeline(me, { reuse } = {}){
 
 // DOCTOR PAGE
 async function showDoctorPage(me){
+  if (window.CC_Checkins && typeof window.CC_Checkins.setContext === 'function'){
+    window.CC_Checkins.setContext(null);
+  }
   state.patientComposer = null;
   state.patientMessages = [];
   state.patientAppointments = [];
@@ -1592,6 +1750,9 @@ async function showDoctorPage(me){
   if (placeholder){ placeholder.classList.remove('hidden'); placeholder.textContent = 'Select a patient from the list to view their profile.'; }
   if (view){ view.classList.add('hidden'); view.innerHTML = ''; }
   document.getElementById('logout-doc').onclick = async () => {
+    if (window.CC_Checkins && typeof window.CC_Checkins.setContext === 'function'){
+      window.CC_Checkins.setContext(null);
+    }
     await supabase.auth.signOut(); state.me = null; showOnly('#auth-section');
   };
 

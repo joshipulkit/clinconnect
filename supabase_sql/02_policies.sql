@@ -6,6 +6,7 @@ alter table public.profiles enable row level security;
 alter table public.medical enable row level security;
 alter table public.feedback enable row level security;
 alter table public.doctor_registry enable row level security;
+alter table public.checkins enable row level security;
 
 -- PROFILES
 drop policy if exists profiles_select_all on public.profiles;
@@ -60,6 +61,24 @@ for delete using (
   (auth.uid() = user_id and author = 'patient')
   or (exists (select 1 from public.profiles p where p.id = auth.uid() and p.category = 'doctor') and author = 'doctor')
 );
+
+-- CHECKINS
+drop policy if exists checkins_select_access on public.checkins;
+drop policy if exists checkins_insert_owner on public.checkins;
+
+create policy checkins_select_access on public.checkins
+for select using (
+  auth.uid() = user_id
+  or exists (
+    select 1
+    from public.profiles patient
+    join public.profiles doctor on doctor.employee_id = patient.assigned_doctor_employee_id
+    where patient.id = user_id and doctor.id = auth.uid()
+  )
+);
+
+create policy checkins_insert_owner on public.checkins
+for insert with check (auth.uid() = user_id);
 
 -- DOCTOR REGISTRY
 drop policy if exists doctor_registry_select_any on public.doctor_registry;

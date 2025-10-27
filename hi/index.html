@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting…</title>
+    <meta http-equiv="refresh" content="0; url=../?lang=hi" />
+    <script>
+      (function () {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          params.set('lang', 'hi');
+          const search = params.toString();
+          const hash = window.location.hash || '';
+          const target = '../' + (search ? '?' + search : '');
+          window.location.replace(target + hash);
+        } catch (_err) {
+          window.location.href = '../?lang=hi';
+        }
+      })();
+    </script>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        margin: 2rem;
+        color: #182136;
+        background: #f4f6fa;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Redirecting to the ClinConnect homepage…</p>
+  </body>
+</html>

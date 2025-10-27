@@ -57,9 +57,26 @@ create table if not exists public.appointments (
   created_at timestamptz not null default now()
 );
 
+-- PATIENT SELF CHECK-INS
+create table if not exists public.checkins (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  doctor_employee_id text,
+  pain_nrs smallint,
+  pain_duration_h smallint,
+  temp_c numeric(4,1),
+  wound_discharge text,
+  mouth_opening_mm smallint,
+  elastics_hours numeric(4,1),
+  triage_score smallint,
+  triage_flags text[] default '{}'::text[],
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_profiles_employee_id on public.profiles using btree (employee_id);
 create index if not exists idx_profiles_patient_id on public.profiles using btree (patient_id);
 create index if not exists idx_profiles_phone on public.profiles using btree (phone);
 create index if not exists idx_feedback_user_id_created on public.feedback (user_id, created_at desc);
 create index if not exists idx_appointments_doctor_id on public.appointments (doctor_id, scheduled_at);
 create index if not exists idx_appointments_patient_id on public.appointments (patient_id, scheduled_at);
+create index if not exists idx_checkins_user_created on public.checkins (user_id, created_at desc);

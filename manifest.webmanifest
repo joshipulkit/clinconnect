@@ -1,11 +1,13 @@
 {
   "name": "ClinConnect | OMFS PGIMER",
   "short_name": "ClinConnect",
-  "start_url": "/index.html",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0b5fff",
   "lang": "en",
+  "description": "ClinConnect keeps OMFS PGIMER patients and doctors aligned with check-ins, resources, and offline access.",
   "icons": [
     {
       "src": "assets/icons/icon-192.png",

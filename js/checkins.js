@@ -10,24 +10,15 @@
     { test: a => (a.elastics_hours || 0) < 8, score: 30, tag: 'elastics_low', level: 'routine' }
   ];
 
+  let currentUserId = null;
+  let currentDoctorEmployeeId = null;
+
   function scoreAnswers(ans){
     let score = 0, flags = [];
     for (const rule of TRIAGE_RULES){
       if (rule.test(ans)){ score += rule.score; flags.push(rule.tag); }
     }
     return { score: Math.min(100, score), flags };
-  }
-
-  // Simple E.164 normalization for IN by default
-  function normalizePhone(phone, iso2='IN'){
-    const digits = (''+phone).replace(/\D+/g,'');
-    if (digits.startswith('+')) return digits;
-    if (iso2 === 'IN'){
-      if (digits.startswith('91')) return '+'+digits;
-      if (digits.startswith('0')) return '+91'+digits.slice(1);
-      return '+91'+digits;
-    }
-    return '+'+digits;
   }
 
   async function sendPayload(payload){
@@ -37,6 +28,9 @@
     if (!url || !anon) throw new Error('Supabase config missing');
     // Example: post to an Edge Function endpoint (recommended) or a table insert via REST
     const endpoint = url.replace(/\/+$/,'') + "/rest/v1/checkins";
+    const body = { ...payload };
+    if (!body.user_id && currentUserId){ body.user_id = currentUserId; }
+    if (!body.created_at){ body.created_at = new Date().toISOString(); }
     const resp = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -45,7 +39,7 @@
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(body)
     });
     if (!resp.ok){ throw new Error('Network/REST error'); }
     return await resp.json();
@@ -58,6 +52,10 @@
   }
 
   function openCheckinModal(){
+    if (!currentUserId){
+      alert(window.translate ? window.translate('checkin.error.authRequired') : 'Please sign in to submit a check-in.');
+      return;
+    }
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.innerHTML = `
@@ -103,16 +101,23 @@
         if (k in ans && ans[k] !== '') ans[k] = Number(ans[k]);
       }
       const triage = scoreAnswers(ans);
-      const payload = { ...ans, triage_score: triage.score, triage_flags: triage.flags, created_at: new Date().toISOString() };
+      const payload = {
+        ...ans,
+        triage_score: triage.score,
+        triage_flags: triage.flags,
+        user_id: currentUserId,
+        doctor_employee_id: currentDoctorEmployeeId || null,
+        created_at: new Date().toISOString()
+      };
 
       const status = document.getElementById('checkin-status');
       try {
         await sendPayload(payload);
-        status.textContent = (window.translate ? window.translate('checkin.status.sent') : 'Submitted');
+        if (status){ status.textContent = (window.translate ? window.translate('checkin.status.sent') : 'Submitted'); }
       } catch(e){
         // offline: queue it
         if (window.CC_PWA) window.CC_PWA.enqueue(payload);
-        status.textContent = (window.translate ? window.translate('checkin.status.queued') : 'Saved offline, will send when online');
+        if (status){ status.textContent = (window.translate ? window.translate('checkin.status.queued') : 'Saved offline, will send when online'); }
       } finally {
         modal.remove();
       }
@@ -122,11 +127,22 @@
   async function uploadPhoto(file){
     // Placeholder: integrate Supabase Storage via Edge Function; for now, show in strip
     const strip = document.getElementById('photo-strip');
+    if (!strip){ return; }
     const url = URL.createObjectURL(file);
     const img = document.createElement('img'); img.src = url; img.alt = 'Healing photo';
     strip.prepend(img);
   }
 
-  window.CC_Checkins = { sendPayload, uploadPhoto };
+  function setContext(ctx){
+    if (ctx && typeof ctx === 'object'){
+      currentUserId = ctx.userId || null;
+      currentDoctorEmployeeId = ctx.doctorEmployeeId || null;
+    } else {
+      currentUserId = null;
+      currentDoctorEmployeeId = null;
+    }
+  }
+
+  window.CC_Checkins = { sendPayload, uploadPhoto, setContext };
   window.addEventListener('DOMContentLoaded', initCheckin);
 })();

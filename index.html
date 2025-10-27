@@ -2,7 +2,6 @@
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OMFS, PGIMER — Patient Follow-up Portal</title>
   <meta name="author" content="Author: Dr. Navavidha Kale; Software Design: Pulkit Joshi" />
   <link rel="stylesheet" href="css/styles.css"/>
@@ -20,16 +19,7 @@
   </script>
 
 </head>
-<body>
-
-<div class="emergency-banner" role="region" aria-label="Emergency banner">
-  <strong data-i18n="emergency.title">Emergency?</strong>
-  <span data-i18n="emergency.copy">If you have severe breathing difficulty, heavy bleeding (>20 min), or sudden facial swelling, call</span>
-  <strong>112</strong> / <strong>108</strong>
-  <span data-i18n="emergency.afterCall">first, then contact the clinic.</span>
-  <a class="btn tiny danger" href="tel:112" data-i18n="emergency.callNow">Call now</a>
-</div>
-
+<body class="app-body">
 
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
     <symbol id="icon-home" viewBox="0 0 24 24" fill="currentColor">
@@ -59,6 +49,9 @@
     <symbol id="icon-mail" viewBox="0 0 24 24" fill="currentColor">
       <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v.217l7 5.25 7-5.25V5H5Zm14 3.383-6.445 4.83a1 1 0 0 1-1.11 0L5 8.383V19h14V8.383Z"/>
     </symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2a6 6 0 0 0-6 6v2.586a2 2 0 0 1-.586 1.414L4 13.414V16h16v-2.586l-1.414-1.414A2 2 0 0 1 18 10.586V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z"/>
+    </symbol>
     <symbol id="icon-check" viewBox="0 0 24 24" fill="currentColor">
       <path d="M20.285 6.708a1 1 0 0 1 .007 1.414l-9.193 9.25a1 1 0 0 1-1.428.01l-4.957-4.9a1 1 0 0 1 1.407-1.424l4.246 4.198 8.486-8.532a1 1 0 0 1 1.432-.016Z"/>
     </symbol>
@@ -85,80 +78,40 @@
     </symbol>
   </svg>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <button id="menu-toggle" class="menu-btn" type="button" aria-label="Open menu" aria-controls="top-nav" aria-expanded="false">
-        <svg class="ico" aria-hidden="true"><use href="#icon-menu"/></svg>
-        <span class="sr-only">Menu</span>
-      </button>
-      <div class="brand-wrap">
-        <img src="assets/images/pgimer_logo.png" alt="PGIMER logo" class="logo"/>
-        <div class="brand-text">
-          <h1 class="brand">OMFS, PGIMER</h1>
-          <p class="tagline">Patient follow-up portal for the Department of Oral and Maxillofacial Surgery, PGIMER, Chandigarh</p>
-        </div>
-      </div>
-      <nav class="nav" id="top-nav" aria-label="Primary">
-        <a href="#" id="nav-home" class="active"><svg class="ico" aria-hidden="true"><use href="#icon-home"/></svg><span class="hide-sm" data-i18n="nav.home">Home</span></a>
-        <a href="#" id="nav-about"><svg class="ico" aria-hidden="true"><use href="#icon-info"/></svg><span class="hide-sm" data-i18n="nav.about">About</span></a>
-        <a href="#" id="nav-resources"><svg class="ico" aria-hidden="true"><use href="#icon-book"/></svg><span class="hide-sm" data-i18n="nav.resources">Resources</span></a>
-      </nav>
-      <div class="header-actions">
-        <div class="language-toggle" id="language-toggle" role="group" aria-label="Interface language" data-i18n-aria-label="languageToggle.ariaLabel">
-          <button type="button" class="lang-btn active" data-lang="en" aria-pressed="true">EN</button>
-          <button type="button" class="lang-btn" data-lang="hi" aria-pressed="false">हि</button>
-          <button type="button" class="lang-btn" data-lang="pa" aria-pressed="false">ਪੰ</button>
-        </div>
-        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
-          <svg class="ico theme-icon" aria-hidden="true"><use href="#icon-sun"/></svg>
-        </button>
+  <div class="app-shell">
+    <div class="app-status-bar" aria-hidden="true">
+      <span class="status-time">09:41</span>
+      <div class="status-icons" aria-hidden="true">
+        <span class="status-indicator status-signal"></span>
+        <span class="status-indicator status-wifi"></span>
+        <span class="status-indicator status-battery"></span>
       </div>
     </div>
-  </header>
+    <div class="app-scroll">
+      <section class="app-toolbar card" aria-label="App header">
+        <div class="app-brand">
+          <img src="assets/images/pgimer_logo.png" alt="PGIMER logo" class="app-logo"/>
+          <div class="app-brand-copy">
+            <span class="app-overline" data-i18n="app.overline">ClinConnect</span>
+            <h1 class="app-title" data-i18n="app.title">Patient Follow-up Portal</h1>
+            <p class="app-subtitle" data-i18n="app.subtitle">Oral &amp; Maxillofacial Surgery · PGIMER, Chandigarh</p>
+          </div>
+        </div>
+        <div class="app-controls">
+          <div class="language-toggle" id="language-toggle" role="group" aria-label="Interface language" data-i18n-aria-label="languageToggle.ariaLabel">
+            <button type="button" class="lang-btn active" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" class="lang-btn" data-lang="hi" aria-pressed="false">हि</button>
+            <button type="button" class="lang-btn" data-lang="pa" aria-pressed="false">ਪੰ</button>
+          </div>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+            <svg class="ico theme-icon" aria-hidden="true"><use href="#icon-sun"/></svg>
+          </button>
+        </div>
+      </section>
 
-  <main class="container">
-    <!-- <section class="meta">
-      <span class="chip">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" fill="currentColor"/></svg>
-        Author: <strong>Dr. Navavidha Kale</strong>
-      </span>
-      <span class="chip">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>
-        Software Design: <strong>Pulkit Joshi</strong>
-      </span>
-    </section>
-
-<section id="doctor-worklist" class="card hidden" aria-labelledby="doctor-worklist-title">
-  <h3 id="doctor-worklist-title" data-i18n="doctor.worklist.title">Triage Worklist</h3>
-  <p class="muted" data-i18n="doctor.worklist.lead">Sorted by risk score. Urgent flags appear on top.</p>
-  <ul id="worklist" class="list"></ul>
-</section>
-
-
-<section id="patient-dashboard" class="card hidden" aria-labelledby="patient-dashboard-title">
-  <h3 id="patient-dashboard-title" data-i18n="patient.dashboard.title">My Care Plan</h3>
-  <div class="dashboard-grid">
-    <div class="dashboard-card">
-      <h4 data-i18n="patient.checkin.title">Today’s check-in</h4>
-      <p class="muted" data-i18n="patient.checkin.lead">Takes 2–3 minutes. Your answers help your doctor.</p>
-      <button id="btn-start-checkin" class="btn primary" data-i18n="patient.checkin.cta">Start check-in</button>
-      <div id="checkin-status" class="small muted" aria-live="polite"></div>
-    </div>
-    <div class="dashboard-card">
-      <h4 data-i18n="patient.photos.title">Healing photos</h4>
-      <p class="muted" data-i18n="patient.photos.lead">Capture standardized views with on-screen guides.</p>
-      <button id="btn-add-photo" class="btn" data-i18n="patient.photos.cta">Add photo</button>
-      <div id="photo-strip" class="photo-strip" aria-live="polite"></div>
-    </div>
-    <div class="dashboard-card">
-      <h4 data-i18n="patient.timeline.title">Timeline</h4>
-      <div id="patient-timeline" class="timeline"></div>
-    </div>
-  </div>
-</section>
- -->
-
-    <section class="hero" id="hero-section">
+      <div class="app-pad">
+        <main class="app-main container">
+    <section class="hero card app-hero" id="hero-section">
       <div class="hero-grid">
         <div class="hero-copy">
           <span class="eyebrow" data-i18n="hero.eyebrow">Specialty Follow-up Care</span>
@@ -231,6 +184,10 @@
               <svg class="ico" aria-hidden="true"><use href="#icon-lock"/></svg>
               <input type="password" id="login-password" required data-i18n-placeholder="login.passwordPlaceholder"/>
             </div>
+          </label>
+          <label class="checkbox-field">
+            <input type="checkbox" id="login-remember"/>
+            <span data-i18n="login.rememberLabel">Stay logged in on this device</span>
           </label>
           <button type="submit" class="btn primary" id="login-submit" data-i18n="login.submit">Login</button>
         </form>
@@ -341,10 +298,29 @@
           <p id="pt-welcome-subtitle" class="muted" data-i18n="patient.welcomeSubtitle">Stay connected with your care team.</p>
         </div>
         <div class="doc-header-actions pt-header-actions">
+          <button type="button" class="btn icon-only notification-toggle" data-open-notifications="patient" aria-label="Notifications">
+            <svg class="ico" aria-hidden="true"><use href="#icon-bell"/></svg>
+            <span class="sr-only" data-i18n="notifications.title">Notifications</span>
+          </button>
           <button id="pt-change-password" class="btn secondary small" data-i18n="patient.changePassword">Change password</button>
           <button id="logout-pt" class="btn danger small" data-i18n="patient.logout">Logout</button>
         </div>
       </div>
+
+      <section class="card notifications-card" data-notifications-context="patient" aria-live="polite" aria-label="Patient notifications">
+        <div class="notifications-card-head">
+          <div>
+            <h3 data-i18n="notifications.title">Notifications</h3>
+            <p class="muted small" data-i18n="notifications.subtitle">Stay updated with patient and clinic activity.</p>
+          </div>
+          <div class="notifications-card-actions">
+            <button type="button" class="btn secondary small" data-role="enable" data-i18n="notifications.enable">Enable push alerts</button>
+            <button type="button" class="btn ghost small" data-role="mark-read" data-i18n="notifications.markAllRead">Mark all read</button>
+          </div>
+        </div>
+        <div class="notifications-empty" data-role="empty" data-i18n="notifications.empty">You’re all caught up.</div>
+        <ul class="notifications-list" data-role="list"></ul>
+      </section>
 
       <div class="doc-summary patient-summary">
         <div id="pt-details" class="details doc-details"></div>
@@ -353,6 +329,29 @@
           <div id="pt-history" class="history-readonly"></div>
         </div>
       </div>
+
+      <section class="patient-actions">
+        <article class="patient-action-card">
+          <div class="patient-action-header">
+            <h4 data-i18n="patient.checkin.title">Today’s check-in</h4>
+            <p class="muted" data-i18n="patient.checkin.lead">Takes 2–3 minutes. Your answers help your doctor.</p>
+          </div>
+          <div class="patient-action-body">
+            <button id="btn-start-checkin" class="btn primary" data-i18n="patient.checkin.cta">Start check-in</button>
+            <p id="checkin-status" class="small muted patient-action-status" aria-live="polite"></p>
+          </div>
+        </article>
+        <article class="patient-action-card">
+          <div class="patient-action-header">
+            <h4 data-i18n="patient.photos.title">Healing photos</h4>
+            <p class="muted" data-i18n="patient.photos.lead">Capture standardized views with on-screen guides.</p>
+          </div>
+          <div class="patient-action-body">
+            <button id="btn-add-photo" class="btn" data-i18n="patient.photos.cta">Add photo</button>
+            <div id="photo-strip" class="photo-strip" aria-live="polite" data-empty-text="No photos yet" data-i18n-attr="patient.photos.empty" data-i18n-attr-name="data-empty-text"></div>
+          </div>
+        </article>
+      </section>
 
       <div class="patient-main">
         <section class="patient-timeline">
@@ -415,10 +414,29 @@
           <p id="doc-welcome-subtitle" class="muted">Review your patients and stay on top of upcoming care.</p>
         </div>
         <div class="doc-header-actions">
+          <button type="button" class="btn icon-only notification-toggle" data-open-notifications="doctor" aria-label="Notifications">
+            <svg class="ico" aria-hidden="true"><use href="#icon-bell"/></svg>
+            <span class="sr-only" data-i18n="notifications.title">Notifications</span>
+          </button>
           <button id="doc-change-password" class="btn secondary small">Change password</button>
           <button id="logout-doc" class="btn danger small">Logout</button>
         </div>
       </div>
+
+      <section class="card notifications-card" data-notifications-context="doctor" aria-live="polite" aria-label="Doctor notifications">
+        <div class="notifications-card-head">
+          <div>
+            <h3 data-i18n="notifications.title">Notifications</h3>
+            <p class="muted small" data-i18n="notifications.subtitle">Stay updated with patient and clinic activity.</p>
+          </div>
+          <div class="notifications-card-actions">
+            <button type="button" class="btn secondary small" data-role="enable" data-i18n="notifications.enable">Enable push alerts</button>
+            <button type="button" class="btn ghost small" data-role="mark-read" data-i18n="notifications.markAllRead">Mark all read</button>
+          </div>
+        </div>
+        <div class="notifications-empty" data-role="empty" data-i18n="notifications.empty">You’re all caught up.</div>
+        <ul class="notifications-list" data-role="list"></ul>
+      </section>
 
       <div class="doc-summary">
         <div id="doc-details-card" class="details doc-details"></div>
@@ -556,12 +574,29 @@
   </div>
 </section>
 
-  </main>
-  <footer class="site-footer">
-    <div class="container">
-      <small>© <span id="year"></span> OMFS, PGIMER · Navavidha Kale and Pulkit Joshi</small>
+        </main>
+        <footer class="app-footer">
+          <div class="app-footer-inner">
+            <small>© <span id="year"></span> OMFS, PGIMER · Navavidha Kale and Pulkit Joshi</small>
+          </div>
+        </footer>
+      </div>
     </div>
-  </footer>
+    <nav class="app-tab-bar" id="top-nav" aria-label="Primary">
+      <a href="#" id="nav-home" class="app-tab-link active">
+        <svg class="ico" aria-hidden="true"><use href="#icon-home"/></svg>
+        <span data-i18n="nav.home">Home</span>
+      </a>
+      <a href="#" id="nav-about" class="app-tab-link">
+        <svg class="ico" aria-hidden="true"><use href="#icon-info"/></svg>
+        <span data-i18n="nav.about">About</span>
+      </a>
+      <a href="#" id="nav-resources" class="app-tab-link">
+        <svg class="ico" aria-hidden="true"><use href="#icon-book"/></svg>
+        <span data-i18n="nav.resources">Resources</span>
+      </a>
+    </nav>
+  </div>
 
   <!-- Config with your Supabase keys (edit js/config.js) -->
   <script src="js/config.js"></script>

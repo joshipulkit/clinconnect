@@ -1,5 +1,5 @@
 
-const CACHE_PREFIX = 'clinconnect-';
+const CACHE_PREFIX = 'omfs-pgimer-';
 const CACHE_VERSION = 'v3';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const CORE_ASSETS = [
@@ -22,10 +22,8 @@ const CORE_ASSETS = [
   './assets/images/hero-hospital-wing.png',
   './assets/images/hero-outpatient-clinic.png',
   './assets/images/hero-patient-counseling.png',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png',
-  './assets/icons/maskable-192.png',
-  './assets/icons/maskable-512.png',
+  './assets/icons/pgimer_logo-192.png',
+  './assets/icons/pgimer_logo-512.png',
   './manifest.webmanifest'
 ];
 
